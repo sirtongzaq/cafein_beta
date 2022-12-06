@@ -42,7 +42,8 @@ dependencies:
   scroll_navigation: ^1.3.2
   like_button: ^2.0.5
   flutter_rating_bar: ^4.0.1
-  
+  flutter_image_slideshow: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

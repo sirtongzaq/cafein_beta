@@ -1,31 +1,31 @@
 import 'dart:convert';
+
+import 'package:cafein_beta/model/slowbar_api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'model/team.dart';
+class SlowbarPage extends StatefulWidget {
+  const SlowbarPage({super.key});
 
-class TestAPI extends StatefulWidget {
-  const TestAPI({Key? key}) : super(key: key);
   @override
-  _TestAPIState createState() => _TestAPIState();
+  State<SlowbarPage> createState() => _SlowbarPageState();
 }
 
-class _TestAPIState extends State<TestAPI> {
-  List<Team> teams = [];
+class _SlowbarPageState extends State<SlowbarPage> {
+  List<Teams> tiles = [];
 
   // get team
   Future Getdata() async {
-    var response = await http.get(Uri.http("e5f7-2001-fb1-14b-2778-9568-10c4-d412-d385.ap.ngrok.io", "/test"));
+    var response = await http.get(Uri.http("e5f7-2001-fb1-14b-2778-9568-10c4-d412-d385.ap.ngrok.io", "store/slowbar"));
     var jsonData = jsonDecode(response.body);
     var x = jsonData['data'];
     print(x);
 
     for (var eachTeam in jsonData['data']) {
-      final team = Team(
-        Store: eachTeam['Store'],
-        score: eachTeam['score'],
+      final team = Teams(
+        Name: eachTeam['Name'],
       );
-      teams.add(team);
+      tiles.add(team);
     }
   }
 
@@ -39,14 +39,14 @@ class _TestAPIState extends State<TestAPI> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Test API'),
+        title: const Text('Slowbar'),
       ),
       body: FutureBuilder(
         future: Getdata(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return ListView.builder(
-              itemCount: teams.length,
+              itemCount: tiles.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -57,8 +57,7 @@ class _TestAPIState extends State<TestAPI> {
                     ),
                     child: Column(
                       children: [
-                        Text(teams[index].Store),
-                        Text(teams[index].score.toString()),
+                        Text(tiles[index].Name),
                       ],
                     ),
                   ),

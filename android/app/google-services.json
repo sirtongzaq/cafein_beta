@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "812543198580",
+    "project_id": "cafein-beta",
+    "storage_bucket": "cafein-beta.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:812543198580:android:67e01134242db9280c5821",
+        "android_client_info": {
+          "package_name": "com.example.cafein_beta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "812543198580-b7bm05g1qb3hoa7716jphr96knlj60pl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6EP5bY_8Nhzv6bZem4CSPkLl4C18zXew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "812543198580-b7bm05g1qb3hoa7716jphr96knlj60pl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

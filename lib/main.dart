@@ -2,10 +2,13 @@
 
 import 'package:cafein_beta/Test_star.dart';
 import 'package:cafein_beta/login_page.dart';
+import 'package:cafein_beta/auth/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -24,7 +27,7 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.mitrTextTheme(), 
         scaffoldBackgroundColor: Color(0xFFE6E6E6),
       ),
-      home: LoginPage(),
+      home: MainPage(),
     );
   }
 }

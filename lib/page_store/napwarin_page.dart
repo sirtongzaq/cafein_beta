@@ -154,7 +154,10 @@ class _NapswarinPageState extends State<NapswarinPage> {
                           Icons.facebook,
                           color: SecondColor,
                         ),
-                        Googlemap,
+                        Icon(
+                          Icons.near_me,
+                          color: SecondColor,
+                        ),
                       ],
                     ),
                     Text(

@@ -1,9 +1,14 @@
 import 'dart:convert';
 import 'package:cafein_beta/Test_API.dart';
-import 'package:cafein_beta/Test_Bar.dart';
+
 import 'package:cafein_beta/home_page.dart';
 import 'package:cafein_beta/login_page.dart';
+import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
+import 'package:cafein_beta/slowbar_page.dart';
+import 'package:cafein_beta/test_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -49,9 +54,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   List Routes = [
     NapswarinPage(),
-    HomePage(),
-    TestBar(),
+    NapswarinPage(),
+    NapswarinPage(),
   ];
+  final user = FirebaseAuth.instance.currentUser!;
+
 
   @override
   void dispose() {
@@ -89,8 +96,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     TabController _tabController = TabController(length: 3, vsync: this);
     return Scaffold(
-      drawer: Drawer(
-        //drawer
+      drawer: Drawer(//drawer
         child: Column(
           children: [
             Material(
@@ -99,7 +105,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const TestAPI()),
+                    CupertinoPageRoute(builder: (context) => const TestAPI()),
                   );
                 },
                 child: Container(
@@ -118,11 +124,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         height: 12,
                       ),
                       Text(
-                        "Park ju-hyun",
+                        "Name",
                         style: TextStyle(color: Colors.white),
                       ),
                       Text(
-                        "Park-ju-hyun@gmail.com",
+                        user.email!,
                         style: TextStyle(color: Colors.white),
                       ),
                       SizedBox(
@@ -147,7 +153,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
+                          CupertinoPageRoute(
                               builder: (context) => const HomePage()),
                         );
                       },
@@ -161,7 +167,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
+                          CupertinoPageRoute(
                               builder: (context) => const HomePage()),
                         );
                       },
@@ -175,8 +181,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const TestBar()),
+                          CupertinoPageRoute(
+                              builder: (context) => const HomePage()),
                         );
                       },
                     ),
@@ -187,10 +193,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         style: TextStyle(color: SecondColor),
                       ),
                       onTap: () {
+                        FirebaseAuth.instance.signOut();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
+                          CupertinoPageRoute(
+                              builder: (context) => const MainPage()),
                         );
                       },
                     ),
@@ -204,8 +211,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: SafeArea(
         child: Column(
           children: <Widget>[
-            AnimatedContainer(
-              // appbar
+            AnimatedContainer(// appbar
               height: _showAppbar ? 56.0 : 0.0,
               duration: Duration(milliseconds: 200),
               child: AppBar(
@@ -222,8 +228,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 child: Column(
                   children: <Widget>[
                     SizedBox(height: 10),
-                    Container(
-                      // search bar
+                    Container(// search bar
                       height: 60,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -241,8 +246,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    Container(
-                      // tab hearder
+                    Container(// tab hearder
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: TabBar(
@@ -268,8 +272,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Container(
-                      // tab body
+                    Container(// tab body
                       width: double.maxFinite,
                       height: 300,
                       child: TabBarView(
@@ -284,7 +287,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(
+                                      CupertinoPageRoute(
                                           builder: (context) => Routes[index]),
                                     );
                                   },
@@ -660,8 +663,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Padding(
-                      // category header
+                    Padding(// category header
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Align(
                           alignment: Alignment.topLeft,
@@ -670,101 +672,116 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             style: TextStyle(color: SecondColor, fontSize: 15),
                           )),
                     ),
-                    Padding(
-                      // category body
+                    Padding(// category body
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Column(
                         children: [
                           Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Container(
-                                  width: 110,
-                                  height: 110,
-                                  decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(0, 4),
-                                            blurRadius: 10.0),
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(4, 0),
-                                            blurRadius: 10.0)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (context) => const SlowbarPage()),
+                                  );
+                                },
+                                child: Padding( // slowbar tab
+                                  padding: const EdgeInsets.all(5),
+                                  child: Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(0, 4),
+                                              blurRadius: 10.0),
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(4, 0),
+                                              blurRadius: 10.0)
+                                        ],
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(5),
+                                          bottomRight: Radius.circular(5),
+                                          topLeft: Radius.circular(5),
+                                          bottomLeft: Radius.circular(5),
+                                        )),
+                                    child: Center(
+                                        child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            'assets/slowbar.png',
+                                            fit: BoxFit.cover,
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                        ),
+                                        Text(
+                                          "SLOWBAR",
+                                          style: TextStyle(
+                                            color: MainColor,
+                                          ),
+                                        ),
                                       ],
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(5),
-                                        bottomRight: Radius.circular(5),
-                                        topLeft: Radius.circular(5),
-                                        bottomLeft: Radius.circular(5),
-                                      )),
-                                  child: Center(
-                                      child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          'assets/slowbar.png',
-                                          fit: BoxFit.cover,
-                                          width: 50,
-                                          height: 50,
-                                        ),
-                                      ),
-                                      Text(
-                                        "SLOWBAR",
-                                        style: TextStyle(
-                                          color: MainColor,
-                                        ),
-                                      ),
-                                    ],
-                                  )),
+                                    )),
+                                  ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Container(
-                                  width: 110,
-                                  height: 110,
-                                  decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(0, 4),
-                                            blurRadius: 10.0),
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(4, 0),
-                                            blurRadius: 10.0)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (context) => const TestPage()),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(0, 4),
+                                              blurRadius: 10.0),
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(4, 0),
+                                              blurRadius: 10.0)
+                                        ],
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(5),
+                                          bottomRight: Radius.circular(5),
+                                          topLeft: Radius.circular(5),
+                                          bottomLeft: Radius.circular(5),
+                                        )),
+                                    child: Center(
+                                        child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            'assets/speedbar.png',
+                                            fit: BoxFit.cover,
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                        ),
+                                        Text(
+                                          "SPEEDBAR",
+                                          style: TextStyle(
+                                            color: MainColor,
+                                          ),
+                                        ),
                                       ],
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(5),
-                                        bottomRight: Radius.circular(5),
-                                        topLeft: Radius.circular(5),
-                                        bottomLeft: Radius.circular(5),
-                                      )),
-                                  child: Center(
-                                      child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          'assets/speedbar.png',
-                                          fit: BoxFit.cover,
-                                          width: 50,
-                                          height: 50,
-                                        ),
-                                      ),
-                                      Text(
-                                        "SPEEDBAR",
-                                        style: TextStyle(
-                                          color: MainColor,
-                                        ),
-                                      ),
-                                    ],
-                                  )),
+                                    )),
+                                  ),
                                 ),
                               ),
                               Padding(

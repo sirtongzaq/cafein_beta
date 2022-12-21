@@ -5,7 +5,7 @@ import 'package:cafein_beta/home_page.dart';
 import 'package:cafein_beta/login_page.dart';
 import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
-import 'package:cafein_beta/slowbar_page.dart';
+import 'package:cafein_beta/category_page/slowbar_page.dart';
 import 'package:cafein_beta/test_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +14,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:like_button/like_button.dart';
 import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -58,8 +59,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     NapswarinPage(),
   ];
   final user = FirebaseAuth.instance.currentUser!;
-
-
   @override
   void dispose() {
     _scrollViewController.dispose();
@@ -124,7 +123,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         height: 12,
                       ),
                       Text(
-                        "Name",
+                        user.uid,
                         style: TextStyle(color: Colors.white),
                       ),
                       Text(
@@ -972,6 +971,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ],
                       ),
+                    ),
+                    Padding(
+                      // CONTENT header
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            "CONTENT",
+                            style: TextStyle(color: SecondColor, fontSize: 15),
+                          )),
                     ),
                     Padding(
                       // CONTENT header

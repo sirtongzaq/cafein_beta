@@ -16,7 +16,7 @@ class _SlowbarPageState extends State<SlowbarPage> {
 
   // get team
   Future Getdata() async {
-    var response = await http.get(Uri.http("e5f7-2001-fb1-14b-2778-9568-10c4-d412-d385.ap.ngrok.io", "store/slowbar"));
+    var response = await http.get(Uri.http("795c-2001-fb1-14b-2778-9568-10c4-d412-d385.ap.ngrok.io", "store/slowbar"));
     var jsonData = jsonDecode(response.body);
     var x = jsonData['data'];
     print(x);

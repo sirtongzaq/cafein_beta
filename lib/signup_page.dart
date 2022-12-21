@@ -6,6 +6,7 @@ import 'package:cafein_beta/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart';
 
 
 class SignupPage extends StatefulWidget {
@@ -39,42 +40,46 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Future signUp() async {
-    try {  
-      // authenticate user
-      if (passwordConfrimed()) {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  try {  
+    // authenticate user
+    if (passwordConfrimed()) {
+      final UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(), 
         password: _passwordController.text.trim()
       );
+      final User? user = result.user;
+      String uid = user!.uid;
       // add user details
       addUserDetails(
+        uid,
         _emailController.text.trim(),
         _usernameController.text.trim(), 
       );
     }
-
-    } on FirebaseAuthException catch (e) {
-      print(e);
-      showDialog(context: context, builder: (context){
-        return AlertDialog(
-          content: Text(e.message.toString()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'OK'),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      });
-    }
-  }
-  
-  Future addUserDetails(String email,String username) async {
-    await FirebaseFirestore.instance.collection("users").add({
-      'email':email,
-      'username':username,
+  } on FirebaseAuthException catch (e) {
+    print(e);
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: Text(e.message.toString()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text('OK'),
+          ),
+        ],
+      );
     });
   }
+}
+
+Future addUserDetails(String uid, String email, String username) async {
+  await FirebaseFirestore.instance.collection("users").add({
+    'uid': uid,
+    'email': email,
+    'username': username,
+  });
+}
+
 
   bool passwordConfrimed() {
     if (_passwordController.text.trim() == _confirmpasswordController.text.trim()){

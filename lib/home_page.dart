@@ -30,15 +30,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final SecondColor = Color.fromRGBO(0, 0, 0, 0.50);
   final BgColor = Color(0xFFE6E6E6);
   final MainColor = Color(0xFFF2D1AF);
-  final Logo = Image(
-    image: AssetImage('assets/cafein_logo.png'),
-    fit: BoxFit.cover,
-  );
-  final TestIMG = ImageIcon(
-      AssetImage(
-        'assets/ratting.png',
-      ),
-      color: Color(0xFFF2D1AF));
+  final Logo = Image(image: AssetImage('assets/cafein_logo.png'),fit: BoxFit.cover,);
+  final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF));
   List images = ["coffee01.jpg", "coffee02.jpg", "coffee03.jpg"];
   List names = ["Nap's x Warin", "Songsarn", "NoteCoffee"];
   List des = [

@@ -1,5 +1,7 @@
 import 'dart:ffi';
 
+import 'package:cafein_beta/page_store/napwarinmap_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:like_button/like_button.dart';
@@ -154,9 +156,18 @@ class _NapswarinPageState extends State<NapswarinPage> {
                           Icons.facebook,
                           color: SecondColor,
                         ),
-                        Icon(
-                          Icons.near_me,
-                          color: SecondColor,
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => const NapswarinMapPage()),
+                        );
+                          },
+                          child: Icon(
+                            Icons.near_me,
+                            color: SecondColor,
+                          ),
                         ),
                       ],
                     ),

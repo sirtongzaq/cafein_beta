@@ -6,6 +6,7 @@ import 'package:cafein_beta/login_page.dart';
 import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cafein_beta/category_page/slowbar_page.dart';
+import 'package:cafein_beta/profile_page.dart';
 import 'package:cafein_beta/test_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,6 +24,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  final user = FirebaseAuth.instance.currentUser!;
   late ScrollController _scrollViewController;
   bool _showAppbar = true;
   bool isScrollingDown = false;
@@ -51,7 +53,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     NapswarinPage(),
     NapswarinPage(),
   ];
-  final user = FirebaseAuth.instance.currentUser!;
   @override
   void dispose() {
     _scrollViewController.dispose();
@@ -97,35 +98,43 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (context) => const TestAPI()),
+                    CupertinoPageRoute(builder: (context) => const ProfilePage()),
                   );
                 },
                 child: Container(
                   width: 500,
                   child: Column(
                     children: [
-                      SizedBox(
-                        height: 62,
-                      ),
-                      CircleAvatar(
-                        radius: 52,
-                        backgroundImage: NetworkImage(
-                            "https://i.pinimg.com/originals/de/33/55/de3355cabf1ae02a58523df7ca252966.png"),
-                      ),
-                      SizedBox(
-                        height: 12,
-                      ),
-                      Text(
-                        user.uid,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Text(
-                        user.email!,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(
-                        height: 12,
-                      )
+                      StreamBuilder(
+                        stream: FirebaseFirestore.instance.collection("users").where("uid", isEqualTo: user.uid).snapshots(),
+                        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if(snapshot.hasData){
+                          return ListView.builder(
+                            itemCount: snapshot.data!.docs.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context,i){
+                              var data = snapshot.data!.docs[i];
+                            return Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: 52,
+                                  backgroundImage: NetworkImage(data["image"]),
+                                ),
+                                Text(
+                                  data["username"],
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  data["email"],
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            );
+                          });
+                        }else{
+                          return CircularProgressIndicator();
+                        }
+                      }),
                     ],
                   ),
                 ),
@@ -964,16 +973,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ],
                       ),
-                    ),
-                    Padding(
-                      // CONTENT header
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            "CONTENT",
-                            style: TextStyle(color: SecondColor, fontSize: 15),
-                          )),
                     ),
                     Padding(
                       // CONTENT header

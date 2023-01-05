@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:cafein_beta/Test_API.dart';
 
@@ -7,15 +8,20 @@ import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cafein_beta/category_page/slowbar_page.dart';
 import 'package:cafein_beta/profile_page.dart';
+import 'package:cafein_beta/search_page.dart';
 import 'package:cafein_beta/test_firestore.dart';
+import 'package:cafein_beta/whereiam_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:like_button/like_button.dart';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:location/location.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,6 +40,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final MainColor = Color(0xFFF2D1AF);
   final Logo = Image(image: AssetImage('assets/cafein_logo.png'),fit: BoxFit.cover,);
   final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF));
+  var latitude = '';
+  var longitude = '';
+  var address = '';
+  late StreamSubscription<Position> streamSubscription;
   List images = ["coffee01.jpg", "coffee02.jpg", "coffee03.jpg"];
   List names = ["Nap's x Warin", "Songsarn", "NoteCoffee"];
   List des = [
@@ -53,15 +63,57 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     NapswarinPage(),
     NapswarinPage(),
   ];
+
+  Future<void> getAddressFromLatLang(Position position) async {
+    List<Placemark> placemark =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark place = placemark[0];
+    address = 'Address : ${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}';
+    print(address);
+  }
+
+  Future<Position> _determinePosition() async {
+  bool serviceEnabled;
+  LocationPermission permission;
+  LocationData? currentLocation;
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    return Future.error('Location services are disabled.');
+  }
+
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      return Future.error('Location permissions are denied');
+    }
+  }
+  
+  if (permission == LocationPermission.deniedForever) {
+    return Future.error(
+      'Location permissions are permanently denied, we cannot request permissions.');
+  } 
+  streamSubscription = Geolocator.getPositionStream().listen((Position position) {
+      latitude = 'Latitude : ${position.latitude}';
+      longitude = 'Longitude : ${position.longitude}';
+      getAddressFromLatLang(position);
+    });
+  return await Geolocator.getCurrentPosition();
+  }
+
+
+
   @override
   void dispose() {
     _scrollViewController.dispose();
     _scrollViewController.removeListener(() {});
+    _determinePosition();
     super.dispose();
   }
 
   @override
   void initState() {
+    _determinePosition();
     super.initState();
     _scrollViewController = new ScrollController();
     _scrollViewController.addListener(() {
@@ -84,7 +136,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
     });
   }
-
   @override
   Widget build(BuildContext context) {
     TabController _tabController = TabController(length: 3, vsync: this);
@@ -160,6 +211,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       },
                     ),
                     ListTile(
+                      leading: Icon(Icons.search),
+                      title: Text(
+                        "Search",
+                        style: TextStyle(color: SecondColor),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => const SearchPage()),
+                        );
+                      },
+                    ),
+                    ListTile(
                       leading: Icon(Icons.favorite),
                       title: Text(
                         "Favorite",
@@ -183,7 +248,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         Navigator.push(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => const HomePage()),
+                              builder: (context) => const WhereiamPage()),
                         );
                       },
                     ),
@@ -229,23 +294,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 child: Column(
                   children: <Widget>[
                     SizedBox(height: 10),
-                    Container(// search bar
+                    Container(// location
                       height: 60,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: TextField(
-                          style: TextStyle(color: SecondColor),
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                        ),
-                      ),
+                      width: 350,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: ShawdowColor,
+                              offset: Offset(0, 4),
+                              blurRadius: 10.0),
+                          BoxShadow(
+                              color: ShawdowColor,
+                              offset: Offset(4, 0),
+                              blurRadius: 10.0)
+                        ],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(5),
+                          bottomRight: Radius.circular(5),
+                          topLeft: Radius.circular(5),
+                          bottomLeft: Radius.circular(5),
+                        )),
+                      child: Center(child: Text(
+                        address,
+                        style: TextStyle(
+                        color: MainColor,
+                      ),)),
                     ),
                     Container(// tab hearder
                       child: Align(

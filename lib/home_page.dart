@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:cafein_beta/Test_API.dart';
-
-import 'package:cafein_beta/home_page.dart';
-import 'package:cafein_beta/login_page.dart';
 import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cafein_beta/category_page/slowbar_page.dart';
+import 'package:cafein_beta/page_store/songsan_page.dart';
 import 'package:cafein_beta/profile_page.dart';
 import 'package:cafein_beta/search_page.dart';
 import 'package:cafein_beta/test_firestore.dart';
@@ -19,7 +16,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:like_button/like_button.dart';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
 
@@ -30,7 +26,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  final user = FirebaseAuth.instance.currentUser!;
+  var user = FirebaseAuth.instance.currentUser!;
   late ScrollController _scrollViewController;
   bool _showAppbar = true;
   bool isScrollingDown = false;
@@ -42,7 +38,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF));
   var latitude = '';
   var longitude = '';
-  var address = '';
+  var address = 'Loading';
   late StreamSubscription<Position> streamSubscription;
   List images = ["coffee01.jpg", "coffee02.jpg", "coffee03.jpg"];
   List names = ["Nap's x Warin", "Songsarn", "NoteCoffee"];
@@ -60,10 +56,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   List Routes = [
     NapswarinPage(),
-    NapswarinPage(),
+    SongsanPage(),
     NapswarinPage(),
   ];
-
   Future<void> getAddressFromLatLang(Position position) async {
     List<Placemark> placemark =
         await placemarkFromCoordinates(position.latitude, position.longitude);
@@ -107,12 +102,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void dispose() {
     _scrollViewController.dispose();
     _scrollViewController.removeListener(() {});
-    _determinePosition();
     super.dispose();
   }
 
   @override
   void initState() {
+    print(user.uid);
+    print(user.email);
     _determinePosition();
     super.initState();
     _scrollViewController = new ScrollController();

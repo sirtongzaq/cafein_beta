@@ -61,7 +61,7 @@ class _SignupPageState extends State<SignupPage> {
     Reference referenceImagesToUpload = referenceDirImages.child(uniqueFileName);
     //handle errors/success
     try{
-      await referenceImagesToUpload.putFile(File("${file!.path}"));
+      await referenceImagesToUpload.putFile(File("${file.path}"));
       imageUrl= await referenceImagesToUpload.getDownloadURL();
       setState(() {
         imageNull = imageUrl;

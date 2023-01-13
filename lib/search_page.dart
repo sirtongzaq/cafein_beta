@@ -1,12 +1,14 @@
+import 'package:cafein_beta/home_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
-
+  
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
@@ -18,7 +20,7 @@ class SearchPage extends StatefulWidget {
   final Logo = Image(image: AssetImage('assets/cafein_logo.png'),fit: BoxFit.cover,);
   final user = FirebaseAuth.instance.currentUser!;
   List SearchResult =  [];
-  
+
 class _SearchPageState extends State<SearchPage> {
   void searchFromFirebase(String query) async {
     final result = await FirebaseFirestore.instance
@@ -30,6 +32,29 @@ class _SearchPageState extends State<SearchPage> {
       SearchResult = result.docs.map((e) => e.data()).toList();
     });
   }
+
+  void gotoPage(String pageName){
+   switch(pageName) { 
+      case 'Home': { 
+         // statements; 
+   Navigator.push(context,CupertinoPageRoute(builder: (redContext) => HomePage())); 
+      } 
+      break; 
+     
+      case "NapswarinPage": { 
+         //statements; 
+   Navigator.push(context,CupertinoPageRoute(builder: (redContext) => NapswarinPage()));
+      } 
+      break; 
+         
+      default: { 
+         throw Exception("Path ${pageName} not supported");
+   
+      }
+      break; 
+     }
+  }   
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +81,7 @@ class _SearchPageState extends State<SearchPage> {
           Expanded(child: ListView.builder(
             itemCount: SearchResult.length,
             itemBuilder: (context, index){
-              return Card(
+              return Card( 
                 child: ListTile(
                   leading: FittedBox(
                     child: Image(image: AssetImage('assets/coffee03.jpg'),fit: BoxFit.fill)),
@@ -76,11 +101,7 @@ class _SearchPageState extends State<SearchPage> {
                     child: Icon(Icons.arrow_forward_ios),
                   ),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                          builder: (context) => const NapswarinPage()),
-                    );
+                    gotoPage(SearchResult[index]["route"]);
                   },
                   ),
               );

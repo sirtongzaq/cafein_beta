@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cafein_beta/Test_API.dart';
 import 'package:cafein_beta/auth/main_page.dart';
+import 'package:cafein_beta/category_page/bakery_page.dart';
+import 'package:cafein_beta/category_page/hybridbar_page.dart';
+import 'package:cafein_beta/category_page/speedbar_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cafein_beta/category_page/slowbar_page.dart';
 import 'package:cafein_beta/page_store/songsan_page.dart';
+import 'package:cafein_beta/post_data.dart';
 import 'package:cafein_beta/profile_page.dart';
 import 'package:cafein_beta/search_page.dart';
 import 'package:cafein_beta/test_firestore.dart';
@@ -230,7 +235,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         Navigator.push(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => const HomePage()),
+                              builder: (context) => const TestAPIPage()),
                         );
                       },
                     ),
@@ -806,7 +811,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => const TestPage()),
+                                    CupertinoPageRoute(builder: (context) => const SpeedbarPage()),
                                   );
                                 },
                                 child: Padding(
@@ -855,49 +860,57 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Container(
-                                  width: 110,
-                                  height: 110,
-                                  decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(0, 4),
-                                            blurRadius: 10.0),
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(4, 0),
-                                            blurRadius: 10.0)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (context) => const HybridPage()),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(0, 4),
+                                              blurRadius: 10.0),
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(4, 0),
+                                              blurRadius: 10.0)
+                                        ],
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(5),
+                                          bottomRight: Radius.circular(5),
+                                          topLeft: Radius.circular(5),
+                                          bottomLeft: Radius.circular(5),
+                                        )),
+                                    child: Center(
+                                        child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            'assets/hybridbar.png',
+                                            fit: BoxFit.cover,
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                        ),
+                                        Text(
+                                          "HYBRIDBAR",
+                                          style: TextStyle(
+                                            color: MainColor,
+                                          ),
+                                        ),
                                       ],
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(5),
-                                        bottomRight: Radius.circular(5),
-                                        topLeft: Radius.circular(5),
-                                        bottomLeft: Radius.circular(5),
-                                      )),
-                                  child: Center(
-                                      child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          'assets/hybridbar.png',
-                                          fit: BoxFit.cover,
-                                          width: 50,
-                                          height: 50,
-                                        ),
-                                      ),
-                                      Text(
-                                        "HYBRIDBAR",
-                                        style: TextStyle(
-                                          color: MainColor,
-                                        ),
-                                      ),
-                                    ],
-                                  )),
+                                    )),
+                                  ),
                                 ),
                               ),
                             ],
@@ -949,94 +962,110 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   )),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Container(
-                                  width: 110,
-                                  height: 110,
-                                  decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(0, 4),
-                                            blurRadius: 10.0),
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(4, 0),
-                                            blurRadius: 10.0)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (context) => const BakeryPage()),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(0, 4),
+                                              blurRadius: 10.0),
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(4, 0),
+                                              blurRadius: 10.0)
+                                        ],
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(5),
+                                          bottomRight: Radius.circular(5),
+                                          topLeft: Radius.circular(5),
+                                          bottomLeft: Radius.circular(5),
+                                        )),
+                                    child: Center(
+                                        child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            'assets/cupcake.png',
+                                            fit: BoxFit.cover,
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                        ),
+                                        Text(
+                                          "BAKERY",
+                                          style: TextStyle(
+                                            color: MainColor,
+                                          ),
+                                        ),
                                       ],
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(5),
-                                        bottomRight: Radius.circular(5),
-                                        topLeft: Radius.circular(5),
-                                        bottomLeft: Radius.circular(5),
-                                      )),
-                                  child: Center(
-                                      child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          'assets/cupcake.png',
-                                          fit: BoxFit.cover,
-                                          width: 50,
-                                          height: 50,
-                                        ),
-                                      ),
-                                      Text(
-                                        "SWEET",
-                                        style: TextStyle(
-                                          color: MainColor,
-                                        ),
-                                      ),
-                                    ],
-                                  )),
+                                    )),
+                                  ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Container(
-                                  width: 110,
-                                  height: 110,
-                                  decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(0, 4),
-                                            blurRadius: 10.0),
-                                        BoxShadow(
-                                            color: ShawdowColor,
-                                            offset: Offset(4, 0),
-                                            blurRadius: 10.0)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (context) => const PostPage()),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(0, 4),
+                                              blurRadius: 10.0),
+                                          BoxShadow(
+                                              color: ShawdowColor,
+                                              offset: Offset(4, 0),
+                                              blurRadius: 10.0)
+                                        ],
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(5),
+                                          bottomRight: Radius.circular(5),
+                                          topLeft: Radius.circular(5),
+                                          bottomLeft: Radius.circular(5),
+                                        )),
+                                    child: Center(
+                                        child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Image.asset(
+                                            'assets/blogging.png',
+                                            fit: BoxFit.cover,
+                                            width: 50,
+                                            height: 50,
+                                          ),
+                                        ),
+                                        Text(
+                                          "COMMUNITY",
+                                          style: TextStyle(
+                                            color: MainColor,
+                                          ),
+                                        ),
                                       ],
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(5),
-                                        bottomRight: Radius.circular(5),
-                                        topLeft: Radius.circular(5),
-                                        bottomLeft: Radius.circular(5),
-                                      )),
-                                  child: Center(
-                                      child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset(
-                                          'assets/blogging.png',
-                                          fit: BoxFit.cover,
-                                          width: 50,
-                                          height: 50,
-                                        ),
-                                      ),
-                                      Text(
-                                        "COMMUNITY",
-                                        style: TextStyle(
-                                          color: MainColor,
-                                        ),
-                                      ),
-                                    ],
-                                  )),
+                                    )),
+                                  ),
                                 ),
                               ),
                             ],

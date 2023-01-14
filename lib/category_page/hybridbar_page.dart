@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 
-class SlowbarPage extends StatefulWidget {
-  const SlowbarPage({super.key});
+class HybridPage extends StatefulWidget {
+  const HybridPage({super.key});
 
   @override
-  State<SlowbarPage> createState() => _SlowbarPageState();
+  State<HybridPage> createState() => _HybridPageState();
 }
-class _SlowbarPageState extends State<SlowbarPage> {
+class _HybridPageState extends State<HybridPage> {
   List<dynamic> slowbar_Data = [];
   final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF));
   getData() async {
-    var url = Uri.https('eae1-2001-fb1-149-cb0e-c8ac-b6cc-37bb-e43.ap.ngrok.io', '/type', {'type' : 'slowbar'},);
+    var url = Uri.https('eae1-2001-fb1-149-cb0e-c8ac-b6cc-37bb-e43.ap.ngrok.io', '/type', {'type' : 'hybrid'},);
     var response = await http.get(url);
     var jsonData = jsonDecode(response.body); 
     print('Response status: ${response.statusCode}');
@@ -33,7 +33,7 @@ class _SlowbarPageState extends State<SlowbarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Slowbar'),
+        title: const Text('Hybridbar'),
       ),
       body: ListView.builder(
         itemCount: slowbar_Data.length,

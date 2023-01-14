@@ -36,7 +36,7 @@ class _SearchPageState extends State<SearchPage> {
   void gotoPage(String pageName){
    switch(pageName) { 
       case 'Home': { 
-         // statements; 
+         //statements; 
    Navigator.push(context,CupertinoPageRoute(builder: (redContext) => HomePage())); 
       } 
       break; 
@@ -101,7 +101,7 @@ class _SearchPageState extends State<SearchPage> {
                     child: Icon(Icons.arrow_forward_ios),
                   ),
                   onTap: () {
-                    gotoPage(SearchResult[index]["route"]);
+                    gotoPage(SearchResult[index]['route']);
                   },
                   ),
               );

@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'package:cafein_beta/category_page/bakery_page.dart';
+import 'package:cafein_beta/communitypost_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,277 +26,296 @@ class _CommunityPageState extends State<CommunityPage> {
   final MainColor = Color(0xFFF2D1AF);
   final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF),size: 1,);
   final Logo = Image(image: AssetImage('assets/cafein_logo.png'),fit: BoxFit.cover,);
+  final _titleController= TextEditingController();
   final _messageController = TextEditingController();
   String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+  String datetimenow = DateTime.now().toString().substring(0,16);
   String imageUrl='';
-  double? ratings ;
   var likecounts = 0;
   var user = FirebaseAuth.instance.currentUser!;
-
-  Future UploadIMG() async {
-    ImagePicker imagePicker=ImagePicker();
-    XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
-    if(file==null) return;
-    Reference referenceRoot = FirebaseStorage.instance.ref();
-    Reference referenceDirImages = referenceRoot.child("images");
-    Reference referenceImagesToUpload = referenceDirImages.child(uniqueFileName);
-    //handle errors/success
-    try{
-      await referenceImagesToUpload.putFile(File("${file.path}"));
-      imageUrl= await referenceImagesToUpload.getDownloadURL();
-      setState(() {
-        imageUrl = imageUrl;
-      });
-    }catch(error){
-      print("error img");
-    }
-  }
-
-  Future Post() async {
-  try { 
-    if(_messageController.text.isEmpty){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: 
-        Text("Please write some message")));
-    }
-    if(imageUrl.isEmpty){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: 
-        Text("Please upload image")));
-    }
-    if (imageUrl.isNotEmpty) {
-      addReview(
-        user.uid,
-        user.email!,
-        _messageController.text.trim(),
-        ratings,
-        likecounts,
-        imageUrl,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: 
-        Text("Thank you for review")));
-    }
-  } on FirebaseAuthException catch (e) {
-    print(e);
-  }
-}
-  Future addReview(String uid, String email, String message, rating, likecount, image,) async {
-    await FirebaseFirestore.instance.collection("community").add({
-      'uid': uid,
-      'email': email,
-      'message': message,
-      'rating' : rating,
-      'likecount' : likecount,
-      'image' : imageUrl,
-    });
-  }
-
-  @override
-  void initState() {
-    print(user.uid);
-    print(user.email);
-    super.initState();
-  }
-  List review_data = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Community"),),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 15,),
-            StreamBuilder(
-              stream: FirebaseFirestore.instance.collection("community").snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if(snapshot.hasData){
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 20.0),
-                  height: 400,
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    itemBuilder: (context,i){
-                      var data = snapshot.data!.docs[i];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
+      body: Column(
+        children: [
+          SizedBox(height: 15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Container(
+                    width: 110,
+                    height: 110,
+                    decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: ShawdowColor,
+                              offset: Offset(0, 4),
+                              blurRadius: 10.0),
+                          BoxShadow(
+                              color: ShawdowColor,
+                              offset: Offset(4, 0),
+                              blurRadius: 10.0)
+                        ],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(5),
+                          bottomRight: Radius.circular(5),
+                          topLeft: Radius.circular(5),
+                          bottomLeft: Radius.circular(5),
+                        )),
+                    child: Center(
+                        child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Image.asset(
+                            'assets/blogging.png',
+                            fit: BoxFit.cover,
+                            width: 50,
+                            height: 50,
+                          ),
+                        ),
+                        Text(
+                          "แนะนำร้าน",
+                          style: TextStyle(
+                            color: MainColor,
+                          ),
+                        ),
+                      ],
+                    )),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                   
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Container(
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: ShawdowColor,
+                                offset: Offset(0, 4),
+                                blurRadius: 10.0),
+                            BoxShadow(
+                                color: ShawdowColor,
+                                offset: Offset(4, 0),
+                                blurRadius: 10.0)
+                          ],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(5),
+                            bottomRight: Radius.circular(5),
+                            topLeft: Radius.circular(5),
+                            bottomLeft: Radius.circular(5),
+                          )),
+                      child: Center(
+                          child: Column(
                         children: [
-                          Container(
-                            width: 350,
-                            height: 400,
-                            decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.white,
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Image.asset(
+                              'assets/blogging.png',
+                              fit: BoxFit.cover,
+                              width: 50,
+                              height: 50,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                    children: [
-                                      Text(
-                                        data["email"],
-                                        style: TextStyle(color: MainColor),
-                                      ),
-                                      SizedBox(
-                                        width: 150,
-                                      ),
-                                      LikeButton(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          size: 20,
-                                          likeCount: data["likecount"],
-                                          likeBuilder: (bool isLiked) {
-                                            return Icon(
-                                              Icons.favorite,
-                                              color: isLiked ? MainColor : Colors.grey,
-                                              size: 20,
-                                            );
-                                          }),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
-                                  Text(
-                                    data["message"],
-                                    style: TextStyle(color: SecondColor),
-                                  ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
-                                  Image.network(
-                                    data["image"],
-                                    width: 150,
-                                    height: 150,
-                                    ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),  
-                                  Row(children: [
-                                    Text(
-                                      "RATING",
-                                      style: TextStyle(color: MainColor),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    RatingBarIndicator(
-                                      rating: data["rating"],
-                                      itemBuilder: (context, index) => TestIMG,
-                                      itemCount: 5,
-                                      itemSize: 15,
-                                      itemPadding: EdgeInsets.symmetric(horizontal: 0),
-                                      direction: Axis.horizontal,
-                                    ),
-                                  ]),
-                                ],
-                              ),
+                          ),
+                          Text(
+                            "โปรโมชั่น",
+                            style: TextStyle(
+                              color: MainColor,
                             ),
                           ),
                         ],
-                      ),
+                      )),
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(builder: (context) => const CommunityPage()),
                     );
-                  }),
-                );
-              }else{
-                return CircularProgressIndicator();
-              }
-            }),
-            SizedBox(height: 15),
-            Container(
-              width: 350,
-              height: 250,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.white,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8, left: 8),
-                    child: Text(
-                      user.email!,
-                      style: TextStyle(color: MainColor),
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Container(
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: ShawdowColor,
+                                offset: Offset(0, 4),
+                                blurRadius: 10.0),
+                            BoxShadow(
+                                color: ShawdowColor,
+                                offset: Offset(4, 0),
+                                blurRadius: 10.0)
+                          ],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(5),
+                            bottomRight: Radius.circular(5),
+                            topLeft: Radius.circular(5),
+                            bottomLeft: Radius.circular(5),
+                          )),
+                      child: Center(
+                          child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Image.asset(
+                              'assets/blogging.png',
+                              fit: BoxFit.cover,
+                              width: 50,
+                              height: 50,
+                            ),
+                          ),
+                          Text(
+                            "ความรู้",
+                            style: TextStyle(
+                              color: MainColor,
+                            ),
+                          ),
+                        ],
+                      )),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.all(12),
-                    height: maxLines * 30.0,
-                    child: TextField(
-                      controller: _messageController,
-                      maxLines: maxLines,
-                      decoration: InputDecoration(
-                        hintText: "Enter a message",
-                        fillColor: Colors.grey[300],
-                        filled: true,
-                      ),
-                    ),
-                  ),
-                  Row(children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(
-                        "RATTING",
-                        style: TextStyle(color: MainColor),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    RatingBar.builder(
-                      initialRating: 0,
-                      minRating: 0,
-                      direction: Axis.horizontal,
-                      allowHalfRating: true,
-                      itemCount: 5,
-                      itemSize: 15,
-                      itemPadding: EdgeInsets.symmetric(horizontal: 0.0),
-                      itemBuilder: (context, _) => TestIMG,
-                      onRatingUpdate: (rating) {
-                        ratings = rating.toDouble();
-                        setState(() {});
-                      },
-                    ),
-                    SizedBox(
-                      width: 130,
-                    ),
-                    InkWell(
-                      onTap: () {
-                        UploadIMG();
-                      },
-                      child: Icon(
-                        Icons.image,
-                        color: MainColor,
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Post();
-                        _messageController.clear();
-                        imageUrl = '';
-                      },
-                      child: Icon(
-                        Icons.arrow_circle_right,
-                        color: MainColor,
-                      ),
-                    ),
-                  ]),
-                ],
-              ),
+                ),
+              ],
             ),
-            SizedBox(
-              height: 15,
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 15),
+          Padding(// category header
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "CONTENT",
+                  style: TextStyle(color: SecondColor, fontSize: 15),
+                )),
+          ),
+          SizedBox(height: 15),
+          StreamBuilder(
+            stream: FirebaseFirestore.instance.collection("community").snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if(snapshot.hasData){
+              return Container(
+                height: 400,
+                child: ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemBuilder: (context,i){
+                    var data = snapshot.data!.docs[i];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 350,
+                          height: 400,
+                          decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.white,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Row(
+                                  children: [
+                                    Text(
+                                      data["email"],
+                                      style: TextStyle(color: MainColor),
+                                    ),
+                                    SizedBox(
+                                      width: 150,
+                                    ),
+                                    LikeButton(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        size: 20,
+                                        likeCount: data["likecount"],
+                                        likeBuilder: (bool isLiked) {
+                                          return Icon(
+                                            Icons.favorite,
+                                            color: isLiked ? MainColor : Colors.grey,
+                                            size: 20,
+                                          );
+                                        }),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text("TITLE",style: TextStyle(color: MainColor),),
+                                    SizedBox(width: 10),
+                                    Text(data["title"],style: TextStyle(color: SecondColor),),
+                                  ],
+                                ),
+                                Container(
+                                  height: 135 ,
+                                  child: Text(
+                                    data["message"],
+                                    style: TextStyle(color: SecondColor),
+                                  ),
+                                ),
+                                Image.network(
+                                  data["image"],
+                                  width: 150,
+                                  height: 150,
+                                  ),
+                                SizedBox(
+                                  height: 10,
+                                ),  
+                                Row(children: [
+                                  Text(
+                                    "DATE",
+                                    style: TextStyle(color: MainColor),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                  data["date"],
+                                  style: TextStyle(color: SecondColor),
+                                ),
+                                ]),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              );
+            }else{
+              return CircularProgressIndicator();
+            }
+          }),
+        ],
       ),
-      
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: MainColor,
+        onPressed: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(builder: (context) => const CommunityPostPage()),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
   

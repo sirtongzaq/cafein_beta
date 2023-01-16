@@ -29,6 +29,7 @@ class _WhereiamPageState extends State<WhereiamPage> {
   double? ratings ;
   var likecounts = 0;
   var user = FirebaseAuth.instance.currentUser!;
+  String store_name = "Naps X Warin";
 
   Future UploadIMG() async {
     ImagePicker imagePicker=ImagePicker();
@@ -63,6 +64,7 @@ class _WhereiamPageState extends State<WhereiamPage> {
     }
     if (imageUrl.isNotEmpty) {
       addReview(
+        store_name,
         user.uid,
         user.email!,
         _messageController.text.trim(),
@@ -78,8 +80,9 @@ class _WhereiamPageState extends State<WhereiamPage> {
     print(e);
   }
 }
-  Future addReview(String uid, String email, String message, rating, likecount, image,) async {
-    await FirebaseFirestore.instance.collection("napsxwarinreviews").add({
+  Future addReview(String store_name,String uid, String email, String message, rating, likecount, image,) async {
+    await FirebaseFirestore.instance.collection("reviews").add({
+      'store_name' : store_name,
       'uid': uid,
       'email': email,
       'message': message,
@@ -91,11 +94,8 @@ class _WhereiamPageState extends State<WhereiamPage> {
 
   @override
   void initState() {
-    print(user.uid);
-    print(user.email);
     super.initState();
   }
-  List review_data = [];
 
   @override
   Widget build(BuildContext context) {
@@ -105,8 +105,8 @@ class _WhereiamPageState extends State<WhereiamPage> {
         child: Column(
           children: [
             SizedBox(height: 15,),
-            StreamBuilder(
-              stream: FirebaseFirestore.instance.collection("napsxwarinreviews").snapshots(),
+            StreamBuilder( //reviews
+              stream: FirebaseFirestore.instance.collection("reviews").snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if(snapshot.hasData){
                 return Container(
@@ -205,7 +205,7 @@ class _WhereiamPageState extends State<WhereiamPage> {
               }
             }),
             SizedBox(height: 15),
-            Container(
+            Container( // comment
               width: 350,
               height: 250,
               decoration: BoxDecoration(

@@ -1,7 +1,13 @@
+import 'dart:io';
+
 import 'package:cafein_beta/page_store/napwarinmap_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:like_button/like_button.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 
@@ -30,6 +36,74 @@ class _NapswarinPageState extends State<NapswarinPage> {
     ),
     color: Color.fromRGBO(0, 0, 0, 0.60),
   );
+  final _messageController = TextEditingController();
+  String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+  String imageUrl='';
+  double? ratings ;
+  var likecounts = 0;
+  var user = FirebaseAuth.instance.currentUser!;
+  String A = 'Naps X Warin';
+  String store_name = "Naps X Warin";
+  Future UploadIMG() async {
+    ImagePicker imagePicker=ImagePicker();
+    XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+    if(file==null) return;
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImages = referenceRoot.child("images");
+    Reference referenceImagesToUpload = referenceDirImages.child(uniqueFileName);
+    //handle errors/success
+    try{
+      await referenceImagesToUpload.putFile(File("${file.path}"));
+      imageUrl= await referenceImagesToUpload.getDownloadURL();
+      setState(() {
+        imageUrl = imageUrl;
+      });
+    }catch(error){
+      print("error img");
+    }
+  }
+
+  Future Post() async {
+  try { 
+    if(_messageController.text.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: 
+        Text("Please write some message")));
+    }
+    if(imageUrl.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: 
+        Text("Please upload image")));
+    }
+    if (imageUrl.isNotEmpty) {
+      addReview(
+        store_name,
+        user.uid,
+        user.email!,
+        _messageController.text.trim(),
+        ratings,
+        likecounts,
+        imageUrl,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: 
+        Text("Thank you for review")));
+    }
+  } on FirebaseAuthException catch (e) {
+    print(e);
+  }
+}
+  Future addReview(String store_name,String uid, String email, String message, rating, likecount, image,) async {
+    await FirebaseFirestore.instance.collection("reviews").add({
+      'store_name' : store_name,
+      'uid': uid,
+      'email': email,
+      'message': message,
+      'rating' : rating,
+      'likecount' : likecount,
+      'image' : imageUrl,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -535,435 +609,105 @@ class _NapswarinPageState extends State<NapswarinPage> {
                     style: TextStyle(color: SecondColor, fontSize: 15),
                   )),
             ),
-            SizedBox(
-              height: 10,
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: <Widget>[
-                  Container(
-                    //reviews
-                    width: 350,
-                    height: 400,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: ShawdowColor,
-                            offset: Offset(0, 4),
-                            blurRadius: 10.0),
-                        BoxShadow(
-                            color: ShawdowColor,
-                            offset: Offset(4, 0),
-                            blurRadius: 10.0)
-                      ],
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            StreamBuilder( //reviews
+              stream: FirebaseFirestore.instance.collection("reviews").where("store_name",isEqualTo: A).snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if(snapshot.hasData){
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10.0),
+                  height: 400,
+                  child: ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    itemBuilder: (context,i){
+                      var data = snapshot.data!.docs[i];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                "NoteChu@gmail.com",
-                                style: TextStyle(color: MainColor),
-                              ),
-                              SizedBox(
-                                width: 150,
-                              ),
-                              LikeButton(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  size: 20,
-                                  likeCount: 5,
-                                  likeBuilder: (bool isLiked) {
-                                    return Icon(
-                                      Icons.favorite,
-                                      color: isLiked ? MainColor : Colors.grey,
-                                      size: 20,
-                                    );
-                                  }),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            "เป็นอีกร้านที่แนะนำในจังหวัดอุบลเลยครับ ดูร้านบรรยากาศดีเป็นบ้านไม้เก่ามาดัดแปลงทำร้านกาแฟน่ารักเก๋ไก๋ ส่วนกาแฟรสชาติดีมากๆ แต่ละเมนูตกแต่งสวยงาม ได้ลองชิมกาแฟลิ้นจี่ และอีกเมนูหนึ่งที่ใส่ไอศครีมอร่อยมากจำชื่อเมนูไม่ได้ ใครมาอุบลข้ามมาฝั่งวาริน แนะนำอีกหนึ่งร้านที่ดีมากๆไม่ควรพลาดครับ",
-                            style: TextStyle(color: SecondColor),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 150,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 10.0),
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(4, 0),
-                                        blurRadius: 10.0)
-                                  ],
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      "assets/coffee01.jpg",
-                                    ),
-                                    fit: BoxFit.cover,
+                          Container(
+                            width: 350,
+                            height: 400,
+                            decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.white,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Row(
+                                    children: [
+                                      Text(
+                                        data["email"],
+                                        style: TextStyle(color: MainColor),
+                                      ),
+                                      SizedBox(
+                                        width: 150,
+                                      ),
+                                      LikeButton(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          size: 20,
+                                          likeCount: data["likecount"],
+                                          likeBuilder: (bool isLiked) {
+                                            return Icon(
+                                              Icons.favorite,
+                                              color: isLiked ? MainColor : Colors.grey,
+                                              size: 20,
+                                            );
+                                          }),
+                                    ],
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Container(
-                                width: 150,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 10.0),
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(4, 0),
-                                        blurRadius: 10.0)
-                                  ],
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      "assets/coffee01.jpg",
-                                    ),
-                                    fit: BoxFit.cover,
+                                  SizedBox(
+                                    height: 15,
                                   ),
-                                ),
-                                child: Center(
-                                  child: Text("MORE",
-                                      style: TextStyle(color: Colors.white)),
-                                ),
+                                  Text(
+                                    data["message"],
+                                    style: TextStyle(color: SecondColor),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Image.network(
+                                    data["image"],
+                                    width: 150,
+                                    height: 150,
+                                    ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),  
+                                  Row(children: [
+                                    Text(
+                                      "RATING",
+                                      style: TextStyle(color: MainColor),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    RatingBarIndicator(
+                                      rating: data["rating"],
+                                      itemBuilder: (context, index) => TestIMG,
+                                      itemCount: 5,
+                                      itemSize: 15,
+                                      itemPadding: EdgeInsets.symmetric(horizontal: 0),
+                                      direction: Axis.horizontal,
+                                    ),
+                                  ]),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(children: [
-                            Text(
-                              "RATTING",
-                              style: TextStyle(color: MainColor),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            RatingBarIndicator(
-                              rating: 5,
-                              itemBuilder: (context, index) => TestIMG,
-                              itemCount: 5,
-                              itemSize: 15,
-                              itemPadding: EdgeInsets.symmetric(horizontal: 0),
-                              direction: Axis.horizontal,
-                            ),
-                          ]),
                         ],
                       ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Container(
-                    //reviews
-                    width: 350,
-                    height: 400,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: ShawdowColor,
-                            offset: Offset(0, 4),
-                            blurRadius: 10.0),
-                        BoxShadow(
-                            color: ShawdowColor,
-                            offset: Offset(4, 0),
-                            blurRadius: 10.0)
-                      ],
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "NoteChu@gmail.com",
-                                style: TextStyle(color: MainColor),
-                              ),
-                              SizedBox(
-                                width: 150,
-                              ),
-                              LikeButton(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  size: 20,
-                                  likeCount: 5,
-                                  likeBuilder: (bool isLiked) {
-                                    return Icon(
-                                      Icons.favorite,
-                                      color: isLiked ? MainColor : Colors.grey,
-                                      size: 20,
-                                    );
-                                  }),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            "เป็นอีกร้านที่แนะนำในจังหวัดอุบลเลยครับ ดูร้านบรรยากาศดีเป็นบ้านไม้เก่ามาดัดแปลงทำร้านกาแฟน่ารักเก๋ไก๋ ส่วนกาแฟรสชาติดีมากๆ แต่ละเมนูตกแต่งสวยงาม ได้ลองชิมกาแฟลิ้นจี่ และอีกเมนูหนึ่งที่ใส่ไอศครีมอร่อยมากจำชื่อเมนูไม่ได้ ใครมาอุบลข้ามมาฝั่งวาริน แนะนำอีกหนึ่งร้านที่ดีมากๆไม่ควรพลาดครับ",
-                            style: TextStyle(color: SecondColor),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 150,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 10.0),
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(4, 0),
-                                        blurRadius: 10.0)
-                                  ],
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      "assets/coffee01.jpg",
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Container(
-                                width: 150,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 10.0),
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(4, 0),
-                                        blurRadius: 10.0)
-                                  ],
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      "assets/coffee01.jpg",
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text("MORE",
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(children: [
-                            Text(
-                              "RATTING",
-                              style: TextStyle(color: MainColor),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            RatingBarIndicator(
-                              rating: 5,
-                              itemBuilder: (context, index) => TestIMG,
-                              itemCount: 5,
-                              itemSize: 15,
-                              itemPadding: EdgeInsets.symmetric(horizontal: 0),
-                              direction: Axis.horizontal,
-                            ),
-                          ]),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Container(
-                    //reviews
-                    width: 350,
-                    height: 400,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: ShawdowColor,
-                            offset: Offset(0, 4),
-                            blurRadius: 10.0),
-                        BoxShadow(
-                            color: ShawdowColor,
-                            offset: Offset(4, 0),
-                            blurRadius: 10.0)
-                      ],
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "NoteChu@gmail.com",
-                                style: TextStyle(color: MainColor),
-                              ),
-                              SizedBox(
-                                width: 150,
-                              ),
-                              LikeButton(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  size: 20,
-                                  likeCount: 5,
-                                  likeBuilder: (bool isLiked) {
-                                    return Icon(
-                                      Icons.favorite,
-                                      color: isLiked ? MainColor : Colors.grey,
-                                      size: 20,
-                                    );
-                                  }),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            "เป็นอีกร้านที่แนะนำในจังหวัดอุบลเลยครับ ดูร้านบรรยากาศดีเป็นบ้านไม้เก่ามาดัดแปลงทำร้านกาแฟน่ารักเก๋ไก๋ ส่วนกาแฟรสชาติดีมากๆ แต่ละเมนูตกแต่งสวยงาม ได้ลองชิมกาแฟลิ้นจี่ และอีกเมนูหนึ่งที่ใส่ไอศครีมอร่อยมากจำชื่อเมนูไม่ได้ ใครมาอุบลข้ามมาฝั่งวาริน แนะนำอีกหนึ่งร้านที่ดีมากๆไม่ควรพลาดครับ",
-                            style: TextStyle(color: SecondColor),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 150,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 10.0),
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(4, 0),
-                                        blurRadius: 10.0)
-                                  ],
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      "assets/coffee01.jpg",
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Container(
-                                width: 150,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 10.0),
-                                    BoxShadow(
-                                        color: ShawdowColor,
-                                        offset: Offset(4, 0),
-                                        blurRadius: 10.0)
-                                  ],
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      "assets/coffee01.jpg",
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text("MORE",
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(children: [
-                            Text(
-                              "RATTING",
-                              style: TextStyle(color: MainColor),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            RatingBarIndicator(
-                              rating: 5,
-                              itemBuilder: (context, index) => TestIMG,
-                              itemCount: 5,
-                              itemSize: 15,
-                              itemPadding: EdgeInsets.symmetric(horizontal: 0),
-                              direction: Axis.horizontal,
-                            ),
-                          ]),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
+                    );
+                  }),
+                );
+              }else{
+                return CircularProgressIndicator();
+              }
+            }),
             Padding(
               // COMMEND header
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -977,17 +721,20 @@ class _NapswarinPageState extends State<NapswarinPage> {
             SizedBox(
               height: 10,
             ),
-            Container(
+            Container( // comment
               width: 350,
               height: 250,
-              color: Colors.white,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.white,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 8, left: 8),
                     child: Text(
-                      "NoteChu@gmail.com",
+                      user.email!,
                       style: TextStyle(color: MainColor),
                     ),
                   ),
@@ -995,6 +742,7 @@ class _NapswarinPageState extends State<NapswarinPage> {
                     margin: EdgeInsets.all(12),
                     height: maxLines * 30.0,
                     child: TextField(
+                      controller: _messageController,
                       maxLines: maxLines,
                       decoration: InputDecoration(
                         hintText: "Enter a message",
@@ -1024,26 +772,39 @@ class _NapswarinPageState extends State<NapswarinPage> {
                       itemPadding: EdgeInsets.symmetric(horizontal: 0.0),
                       itemBuilder: (context, _) => TestIMG,
                       onRatingUpdate: (rating) {
-                        print(rating);
+                        ratings = rating.toDouble();
+                        setState(() {});
                       },
                     ),
                     SizedBox(
                       width: 130,
                     ),
-                    Icon(
-                      Icons.image,
-                      color: MainColor,
+                    InkWell(
+                      onTap: () {
+                        UploadIMG();
+                      },
+                      child: Icon(
+                        Icons.image,
+                        color: MainColor,
+                      ),
                     ),
-                    Icon(
-                      Icons.arrow_circle_right,
-                      color: MainColor,
+                    InkWell(
+                      onTap: () {
+                        Post();
+                        _messageController.clear();
+                        imageUrl = '';
+                      },
+                      child: Icon(
+                        Icons.arrow_circle_right,
+                        color: MainColor,
+                      ),
                     ),
                   ]),
                 ],
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 15,
             ),
           ],
         ),

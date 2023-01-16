@@ -41,7 +41,7 @@ class _TestAPIPageState extends State<TestAPIPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Test_API'),
+        title: const Text('Nearby'),
       ),
       body: ListView.builder(
         itemCount: latlong_data.length,

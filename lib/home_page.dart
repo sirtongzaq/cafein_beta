@@ -5,9 +5,10 @@ import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/category_page/bakery_page.dart';
 import 'package:cafein_beta/category_page/hybridbar_page.dart';
 import 'package:cafein_beta/category_page/speedbar_page.dart';
+import 'package:cafein_beta/community_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cafein_beta/category_page/slowbar_page.dart';
-import 'package:cafein_beta/page_store/songsan_page.dart';
+import 'package:cafein_beta/page_store/sangob_page.dart';
 import 'package:cafein_beta/post_data.dart';
 import 'package:cafein_beta/profile_page.dart';
 import 'package:cafein_beta/search_page.dart';
@@ -61,7 +62,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   List Routes = [
     NapswarinPage(),
-    SongsanPage(),
+    SagnobPage(),
     NapswarinPage(),
   ];
   Future<void> getAddressFromLatLang(Position position) async {
@@ -1019,7 +1020,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => const PostPage()),
+                                    CupertinoPageRoute(builder: (context) => const CommunityPage()),
                                   );
                                 },
                                 child: Padding(

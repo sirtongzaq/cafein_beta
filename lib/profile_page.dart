@@ -35,67 +35,88 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   CircleAvatar(
-                    radius: 52,
+                    radius: 104,
                     backgroundImage: NetworkImage(data["image"]),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.person,
-                          color: SecondColor,),
-                        SizedBox(width: 10),
-                        Text(
-                          data["username"],
-                          style: TextStyle(color: SecondColor),
+                  SizedBox(height: 10,),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
+                      child: SizedBox(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              color: SecondColor,),
+                            SizedBox(width: 10),
+                            Text(
+                              data["username"],
+                              style: TextStyle(color: SecondColor),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.email,
-                          color: SecondColor,),
-                        SizedBox(width: 10),
-                        Text(
-                          data["email"],
-                          style: TextStyle(color: SecondColor),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
+                      child: SizedBox(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.email,
+                              color: SecondColor,),
+                            SizedBox(width: 10),
+                            Text(
+                              data["email"],
+                              style: TextStyle(color: SecondColor),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.add_reaction,
-                          color: SecondColor,),
-                        SizedBox(width: 10),
-                        Text(
-                          data["gender"],
-                          style: TextStyle(color: SecondColor),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
+                      child: SizedBox(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_reaction,
+                              color: SecondColor,),
+                            SizedBox(width: 10),
+                            Text(
+                              data["gender"],
+                              style: TextStyle(color: SecondColor),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.person_search,
-                          color: SecondColor,),
-                        SizedBox(width: 10),
-                        Text(
-                          data["age"],
-                          style: TextStyle(color: SecondColor),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal:20,vertical: 2.5),
+                      child: SizedBox(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.person_search,
+                              color: SecondColor,),
+                            SizedBox(width: 10),
+                            Text(
+                              data["age"],
+                              style: TextStyle(color: SecondColor),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ],

@@ -9,13 +9,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:like_button/like_button.dart';
 import 'dart:io';
 
-class WhereiamPage extends StatefulWidget {
-  const WhereiamPage({super.key});
+class CommunityPage extends StatefulWidget {
+  const CommunityPage({super.key});
 
   @override
-  State<WhereiamPage> createState() => _WhereiamPageState();
+  State<CommunityPage> createState() => _CommunityPageState();
 }
-class _WhereiamPageState extends State<WhereiamPage> {
+class _CommunityPageState extends State<CommunityPage> {
   final maxLines = 5;
   final ShawdowColor = Color.fromRGBO(0, 0, 0, 0.25);
   final SecondColor = Color.fromRGBO(0, 0, 0, 0.50);
@@ -79,7 +79,7 @@ class _WhereiamPageState extends State<WhereiamPage> {
   }
 }
   Future addReview(String uid, String email, String message, rating, likecount, image,) async {
-    await FirebaseFirestore.instance.collection("napsxwarinreviews").add({
+    await FirebaseFirestore.instance.collection("community").add({
       'uid': uid,
       'email': email,
       'message': message,
@@ -100,13 +100,13 @@ class _WhereiamPageState extends State<WhereiamPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("COMMENT AND DISPLAY"),),
+      appBar: AppBar(title: Text("Community"),),
       body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(height: 15,),
             StreamBuilder(
-              stream: FirebaseFirestore.instance.collection("napsxwarinreviews").snapshots(),
+              stream: FirebaseFirestore.instance.collection("community").snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if(snapshot.hasData){
                 return Container(

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cafein_beta/page_store/napwarinmap_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

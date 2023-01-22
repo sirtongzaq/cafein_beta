@@ -80,7 +80,7 @@ class _SearchPageState extends State<SearchPage> {
       } 
       break; 
 
-      case "sangob": { 
+      case "Sangob": { 
          //statements; 
    Navigator.push(context,CupertinoPageRoute(builder: (redContext) => SagnobPage()));
       } 
@@ -307,8 +307,7 @@ class _SearchPageState extends State<SearchPage> {
             itemBuilder: (context, index){
               return Card( 
                 child: ListTile(
-                  leading: FittedBox(
-                    child: Image.network("https://thailandtourismdirectory.go.th/assets/upload/2021/03/16/202103160599ed91b91227dca031e7f778636148112341.jpg"),),
+                  leading: Image.network(SearchResult[index]["img_cover"][0],fit: BoxFit.cover,),
                   title: Text(SearchResult[index]["string_name"]),
                   subtitle: Container(
                     child: Column(
@@ -326,7 +325,6 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   onTap: () {
                     gotoPage(SearchResult[index]['string_name']);
-                    print(SearchResult[index]["string_name"]);
                   },
                   ),
               );

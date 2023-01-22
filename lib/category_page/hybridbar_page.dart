@@ -13,7 +13,7 @@ class _HybridPageState extends State<HybridPage> {
   List<dynamic> slowbar_Data = [];
   final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF));
   getData() async {
-    var url = Uri.https('eae1-2001-fb1-149-cb0e-c8ac-b6cc-37bb-e43.ap.ngrok.io', '/type', {'type' : 'hybrid'},);
+    var url = Uri.https('8a08-2001-fb1-14b-4a38-2d8b-afc0-f89-2a37.ap.ngrok.io', '/type', {'type' : 'hybrid'},);
     var response = await http.get(url);
     var jsonData = jsonDecode(response.body); 
     print('Response status: ${response.statusCode}');

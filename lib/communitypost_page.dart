@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 class CommunityPostPage extends StatefulWidget {
   const CommunityPostPage({super.key});
 
@@ -27,6 +28,8 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
   String imageUrl='';
   var likecounts = 0;
   var user = FirebaseAuth.instance.currentUser!;
+  String postId = Uuid().v4();
+  
   Future UploadIMG() async {
     ImagePicker imagePicker=ImagePicker();
     XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -67,6 +70,7 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
           datetimenow,
           likecounts,
           imageUrl,
+          postId,
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: 
@@ -76,7 +80,7 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
       print(e);
     }
   }
-  Future addReview(String tile, String message, String uid, String email, datetimenow, likecount, image,) async {
+  Future addReview(String tile, String message, String uid, String email, datetimenow, likecount, image, String postid) async {
     await FirebaseFirestore.instance.collection("community").add({
       'title': tile,
       'message': message,
@@ -85,6 +89,7 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
       'date' : datetimenow,
       'likecount' : likecount,
       'image' : imageUrl,
+      'postid' : postid,
     });
   }
   @override

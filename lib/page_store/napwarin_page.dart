@@ -10,6 +10,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:like_button/like_button.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NapswarinPage extends StatefulWidget {
   const NapswarinPage({super.key});
@@ -24,26 +25,15 @@ class _NapswarinPageState extends State<NapswarinPage> {
   final BgColor = Color(0xFFE6E6E6);
   final MainColor = Color(0xFFF2D1AF);
   final maxLines = 5;
-  List images = ["coffee01.jpg", "coffee02.jpg", "coffee03.jpg"];
-  final TestIMG = ImageIcon(
-      AssetImage(
-        'assets/ratting.png',
-      ),
-      color: Color(0xFFF2D1AF));
-  final Googlemap = ImageIcon(
-    AssetImage(
-      'assets/google_map.png',
-    ),
-    color: Color.fromRGBO(0, 0, 0, 0.60),
-  );
+  final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF));
   final _messageController = TextEditingController();
   String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
   String imageUrl='';
   double? ratings ;
   var likecounts = 0;
   var user = FirebaseAuth.instance.currentUser!;
-  String A = 'Naps X Warin';
-  String store_name = "Naps X Warin";
+  String A = "NAP's X Warin";
+  String datetimenow = DateTime.now().toString().substring(0,16);
   Future UploadIMG() async {
     ImagePicker imagePicker=ImagePicker();
     XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -77,13 +67,14 @@ class _NapswarinPageState extends State<NapswarinPage> {
     }
     if (imageUrl.isNotEmpty) {
       addReview(
-        store_name,
+        A,
         user.uid,
         user.email!,
         _messageController.text.trim(),
         ratings,
         likecounts,
         imageUrl,
+        datetimenow,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: 
@@ -93,15 +84,16 @@ class _NapswarinPageState extends State<NapswarinPage> {
     print(e);
   }
 }
-  Future addReview(String store_name,String uid, String email, String message, rating, likecount, image,) async {
+  Future addReview(String A,String uid, String email, String message, rating, likecount, image,datetimenow) async {
     await FirebaseFirestore.instance.collection("reviews").add({
-      'store_name' : store_name,
+      'store_name' : A,
       'uid': uid,
       'email': email,
       'message': message,
       'rating' : rating,
       'likecount' : likecount,
       'image' : imageUrl,
+      'date' : datetimenow,
     });
   }
 
@@ -110,7 +102,7 @@ class _NapswarinPageState extends State<NapswarinPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Naps X Warin",
+          A,
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: MainColor,
@@ -120,485 +112,540 @@ class _NapswarinPageState extends State<NapswarinPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ImageSlideshow(
-              //Img slide
-              width: double.infinity,
-              height: 400,
-              initialPage: 0,
-              indicatorColor: MainColor,
-              indicatorBackgroundColor: Colors.grey,
-              // ignore: sort_child_properties_last
-              children: [
-                Image.asset(
-                  'assets/' + images[0],
-                  fit: BoxFit.cover,
-                ),
-                Image.asset(
-                  'assets/' + images[1],
-                  fit: BoxFit.cover,
-                ),
-                Image.asset(
-                  'assets/' + images[2],
-                  fit: BoxFit.cover,
-                ),
-              ],
-              onPageChanged: (value) {
-                print('Page changed: $value');
-              },
-              isLoop: false,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              // detail body
-              width: 350,
-              height: 250,
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                      color: ShawdowColor,
-                      offset: Offset(0, 4),
-                      blurRadius: 10.0),
-                  BoxShadow(
-                      color: ShawdowColor,
-                      offset: Offset(4, 0),
-                      blurRadius: 10.0)
-                ],
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "DETAIL",
-                      style: TextStyle(color: MainColor),
-                    ),
-                    Text(
-                      "ร้านกาแฟบรรยากาศสบายๆ ฝั่งวาริน กาแฟรสดี มีเมนูหลากหลาย",
-                      style: TextStyle(color: SecondColor),
-                    ),
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "PRICE",
-                              style: TextStyle(color: MainColor),
-                            ),
-                            Text(
-                              "฿45-300",
-                              style: TextStyle(color: SecondColor),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 100),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+            StreamBuilder( //detail
+              stream: FirebaseFirestore.instance.collection("search").where("string_name",isEqualTo: A).snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if(snapshot.hasData){
+                return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    physics: ClampingScrollPhysics(), 
+                    shrinkWrap: true,
+                    itemBuilder: (context,i){
+                      var data = snapshot.data!.docs[i];
+                      String _ulr = data['facebook'];
+                      var tel = data["contact"];
+                      var rt = data["rating"];
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          ImageSlideshow(
+                            //Img slide
+                            width: double.infinity,
+                            height: 400,
+                            initialPage: 0,
+                            indicatorColor: MainColor,
+                            indicatorBackgroundColor: Colors.grey,
+                            // ignore: sort_child_properties_last
                             children: [
-                              Text(
-                                "OPEN DAILY",
-                                style: TextStyle(color: MainColor),
+                              Image.network(
+                                data['img_cover'][0],
+                                fit: BoxFit.cover,
                               ),
-                              Text(
-                                "07.00-16.00",
-                                style: TextStyle(color: SecondColor),
+                              Image.network(
+                                data['img_cover'][1],
+                                fit: BoxFit.cover,
+                              ),
+                              Image.network(
+                                data['img_cover'][2],
+                                fit: BoxFit.cover,
                               ),
                             ],
+                            isLoop: true,
                           ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      "CONTACT",
-                      style: TextStyle(color: MainColor),
-                    ),
-                    Text(
-                      "083-365-5536",
-                      style: TextStyle(color: SecondColor),
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.facebook,
-                          color: SecondColor,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) => const NapswarinMapPage()),
-                        );
-                          },
-                          child: Icon(
-                            Icons.near_me,
-                            color: SecondColor,
+                          SizedBox(
+                            height: 10,
                           ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      "RATTING",
-                      style: TextStyle(color: MainColor),
-                    ),
-                    Row(
-                      children: [
-                        RatingBarIndicator(
-                          rating: 5,
-                          itemBuilder: (context, index) => TestIMG,
-                          itemCount: 5,
-                          itemSize: 15,
-                          itemPadding: EdgeInsets.symmetric(horizontal: 0),
-                          direction: Axis.horizontal,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 85,
+                          Container(
+                            // detail body
+                            width: 350,
+                            height: 250,
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                    color: ShawdowColor,
+                                    offset: Offset(0, 4),
+                                    blurRadius: 10.0),
+                                BoxShadow(
+                                    color: ShawdowColor,
+                                    offset: Offset(4, 0),
+                                    blurRadius: 10.0)
+                              ],
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.white,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "DETAIL",
+                                        style: TextStyle(color: MainColor),
+                                      ),
+                                      Text(
+                                        data["address"],
+                                        style: TextStyle(color: SecondColor),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "PRICE",
+                                            style: TextStyle(color: MainColor),
+                                          ),
+                                          Text(
+                                            "${data["price"]}",
+                                            style: TextStyle(color: SecondColor),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 100),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "OPEN DAILY",
+                                              style: TextStyle(color: MainColor),
+                                            ),
+                                            Text(
+                                              data["open_daily"],
+                                              style: TextStyle(color: SecondColor),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "CONTACT",
+                                            style: TextStyle(color: MainColor),
+                                          ),
+                                          Text(
+                                            data["contact"],
+                                            style: TextStyle(color: SecondColor),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 50),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "TYPE",
+                                              style: TextStyle(color: MainColor),
+                                            ),
+                                            Text(
+                                              data["type"].toUpperCase(),
+                                              style: TextStyle(color: SecondColor),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: Row(
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            launch('tel:$tel');
+                                            print(tel);
+                                          },
+                                          child: Icon(
+                                            Icons.call,
+                                            color: SecondColor,
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            launchUrl(
+                                              Uri.parse(_ulr)
+                                            );
+                                            print(_ulr);
+                                          },
+                                          child: Icon(
+                                            Icons.facebook,
+                                            color: SecondColor,
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                              builder: (context) => const NapswarinMapPage()),
+                                        );
+                                          },
+                                          child: Icon(
+                                            Icons.near_me,
+                                            color: SecondColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: Text(
+                                      "RATTING",
+                                      style: TextStyle(color: MainColor),
+                                    ),
+                                  ),
+                                  RatingBarIndicator(
+                                    rating: double.parse(rt),
+                                    itemBuilder: (context, index) => TestIMG,
+                                    itemCount: 5,
+                                    itemSize: 15,
+                                    itemPadding: EdgeInsets.symmetric(horizontal: 0),
+                                    direction: Axis.horizontal,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          child: LikeButton(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              size: 20,
-                              likeCount: 5,
-                              likeBuilder: (bool isLiked) {
-                                return Icon(
-                                  Icons.favorite,
-                                  color: isLiked ? MainColor : Colors.grey,
-                                  size: 20,
-                                );
-                              }),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              // CONTENT header
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    "MENU",
-                    style: TextStyle(color: SecondColor, fontSize: 15),
-                  )),
-            ),
-            Container(
-              width: 1000,
-              height: 150,
-              child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(children: <Widget>[
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            // CONTENT header
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  "MENU",
+                                  style: TextStyle(color: SecondColor, fontSize: 15),
+                                )),
+                          ),
+                          Container(
+                            width: 1000,
+                            height: 150,
+                            child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(children: <Widget>[
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU1",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU2",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU3",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU4",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU5",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU6",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU7",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU8",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU9",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    width: 110,
+                                    height: 110,
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(0, 4),
+                                            blurRadius: 10.0),
+                                        BoxShadow(
+                                            color: ShawdowColor,
+                                            offset: Offset(4, 0),
+                                            blurRadius: 10.0)
+                                      ],
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/menu_1.jpg",
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      "MENU10",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                ])),
+                          ),
                         ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
                       ),
-                      child: Center(
-                          child: Text(
-                        "MENU1",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU2",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU3",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU4",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU5",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU6",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU7",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU8",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU9",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/menu_1.jpg",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Center(
-                          child: Text(
-                        "MENU10",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    ),
-                  ])),
-            ),
+                    );
+                  });
+              }else{
+                return CircularProgressIndicator();
+              }
+            }),
             Padding(
               // CONTENT header
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -660,24 +707,18 @@ class _NapswarinPageState extends State<NapswarinPage> {
                                           }),
                                     ],
                                   ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
-                                  Text(
+                                  Container(
+                                  height: 160 ,
+                                  child: Text(
                                     data["message"],
                                     style: TextStyle(color: SecondColor),
                                   ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
+                                ),
                                   Image.network(
                                     data["image"],
                                     width: 150,
                                     height: 150,
                                     ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),  
                                   Row(children: [
                                     Text(
                                       "RATING",
@@ -687,7 +728,7 @@ class _NapswarinPageState extends State<NapswarinPage> {
                                       width: 10,
                                     ),
                                     RatingBarIndicator(
-                                      rating: data["rating"],
+                                      rating: 5,
                                       itemBuilder: (context, index) => TestIMG,
                                       itemCount: 5,
                                       itemSize: 15,
@@ -695,6 +736,10 @@ class _NapswarinPageState extends State<NapswarinPage> {
                                       direction: Axis.horizontal,
                                     ),
                                   ]),
+                                  Text(
+                                      data["date"],
+                                      style: TextStyle(color: SecondColor),
+                                    ),
                                 ],
                               ),
                             ),
@@ -800,6 +845,12 @@ class _NapswarinPageState extends State<NapswarinPage> {
                       ),
                     ),
                   ]),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(datetimenow,style: TextStyle(
+                        color: SecondColor
+                      ),),
+                  ),
                 ],
               ),
             ),

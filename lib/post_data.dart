@@ -11,7 +11,7 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> {
  getData() async {
   try {
-    var url = Uri.https('eae1-2001-fb1-149-cb0e-c8ac-b6cc-37bb-e43.ap.ngrok.io', '/add');
+    var url = Uri.https('8a08-2001-fb1-14b-4a38-2d8b-afc0-f89-2a37.ap.ngrok.io', '/add');
     final response = await http.post(url, body: jsonEncode({
       "name":"MindTong",
       "token":"asldkfjasl;dkfjas;ld",

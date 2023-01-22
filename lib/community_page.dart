@@ -40,7 +40,7 @@ class _CommunityPageState extends State<CommunityPage> {
       body: Column(
         children: [
           SizedBox(height: 15),
-          Padding(
+          Padding( //category
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Row(
               children: [
@@ -91,7 +91,6 @@ class _CommunityPageState extends State<CommunityPage> {
                 ),
                 InkWell(
                   onTap: () {
-                   
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(5),
@@ -218,7 +217,15 @@ class _CommunityPageState extends State<CommunityPage> {
                   shrinkWrap: true,
                   itemBuilder: (context,i){
                     var data = snapshot.data!.docs[i];
-                  return Padding(
+                    int lc = data["likecount"];
+                    handleliked(){    
+                    final washingtonRef =  FirebaseFirestore.instance.collection("community").doc("Fu4fRrw4hyapVjjqsOqc");
+                    washingtonRef.update({
+                      "likecount" : lc,
+                    });
+                  }
+                  return 
+                  Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Row(
                       children: [
@@ -244,16 +251,16 @@ class _CommunityPageState extends State<CommunityPage> {
                                       width: 150,
                                     ),
                                     LikeButton(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        size: 20,
-                                        likeCount: data["likecount"],
-                                        likeBuilder: (bool isLiked) {
-                                          return Icon(
-                                            Icons.favorite,
-                                            color: isLiked ? MainColor : Colors.grey,
-                                            size: 20,
-                                          );
-                                        }),
+                                      mainAxisAlignment: MainAxisAlignment.start,                             
+                                      size: 20,
+                                      likeCount: lc,
+                                      likeBuilder: (bool isLiked) {
+                                        return Icon(
+                                          Icons.favorite,
+                                          color: isLiked ? MainColor : Colors.grey,
+                                          size: 20,
+                                        );
+                                    }),
                                   ],
                                 ),
                                 Row(

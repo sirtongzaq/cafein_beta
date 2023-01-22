@@ -144,16 +144,16 @@ class _WhereiamPageState extends State<WhereiamPage> {
                                         width: 150,
                                       ),
                                       LikeButton(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          size: 20,
-                                          likeCount: data["likecount"],
-                                          likeBuilder: (bool isLiked) {
-                                            return Icon(
-                                              Icons.favorite,
-                                              color: isLiked ? MainColor : Colors.grey,
-                                              size: 20,
-                                            );
-                                          }),
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        size: 20,
+                                        likeCount: data["likecount"],
+                                        likeBuilder: (bool isLiked) {
+                                          return Icon(
+                                            Icons.favorite,
+                                            color: isLiked ? MainColor : Colors.grey,
+                                            size: 20,
+                                          );
+                                      }),
                                     ],
                                   ),
                                   SizedBox(

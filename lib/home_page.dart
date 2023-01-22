@@ -250,7 +250,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         Navigator.push(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => const WhereiamPage()),
+                              builder: (context) => const PostPage()),
                         );
                       },
                     ),

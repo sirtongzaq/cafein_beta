@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -39,14 +40,15 @@ class _NapswarinMapPageState extends State<NapswarinMapPage> {
     },);
   }
 
-  void getPolyPoints() async {
+void getPolyPoints() async {
+    var currentPosition = await Geolocator.getCurrentPosition();
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       googleAPiKey, 
-      PointLatLng(sourceLocation.latitude, sourceLocation.longitude),
+      PointLatLng(currentPosition.latitude, currentPosition.longitude),
       PointLatLng(destination.latitude, destination.longitude),
     );
-
+    
     if (result.points.isNotEmpty) {
       result.points.forEach(
         (PointLatLng point) => polylineCoordinates.add(
@@ -99,10 +101,6 @@ class _NapswarinMapPageState extends State<NapswarinMapPage> {
             Marker(
               markerId: MarkerId("currentLocation"),
               position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-            ),
-            const Marker(
-              markerId: MarkerId("source"),
-              position: sourceLocation,
             ),
             const Marker(
               markerId: MarkerId("destination"),

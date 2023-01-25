@@ -668,65 +668,40 @@ class _CommunePageState extends State<CommunePage> {
                     shrinkWrap: true,
                     itemBuilder: (context,i){
                       var data = snapshot.data!.docs[i];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 350,
-                            height: 400,
-                            decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                    children: [
-                                      Text(
-                                        data["email"],
-                                        style: TextStyle(color: MainColor),
-                                      ),
-                                      SizedBox(
-                                        width: 150,
-                                      ),
-                                      LikeButton(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          size: 20,
-                                          likeCount: data["likecount"],
-                                          likeBuilder: (bool isLiked) {
-                                            return Icon(
-                                              Icons.favorite,
-                                              color: isLiked ? MainColor : Colors.grey,
-                                              size: 20,
-                                            );
-                                          }),
-                                    ],
-                                  ),
-                                  Container(
-                                  height: 160 ,
-                                  child: Text(
-                                    data["message"],
-                                    style: TextStyle(color: SecondColor),
-                                  ),
-                                ),
-                                  Image.network(
-                                    data["image"],
-                                    width: 150,
-                                    height: 150,
-                                    ),
-                                  Row(children: [
-                                    Text(
-                                      "RATING",
-                                      style: TextStyle(color: MainColor),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    RatingBarIndicator(
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Card(
+                      elevation: 10,
+                      margin: EdgeInsets.all(10),
+                      child: Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Email ",style: TextStyle(
+                                    color: MainColor
+                                  ),),
+                                  Text(data["email"],style: TextStyle(
+                                    color: SecondColor
+                                  ),),
+                                ],
+                              ),
+                              Container(
+                                width: 300,
+                                child: Text(data["message"],style: TextStyle(
+                                      color: SecondColor
+                                    ),),
+                              ),
+                              Image.network(data["image"],width: 300),
+                              Row(
+                                children: [
+                                  Text("RATING ",style: TextStyle(
+                                    color: MainColor
+                                  ),),
+                                  RatingBarIndicator(
                                       rating: data["rating"],
                                       itemBuilder: (context, index) => TestIMG,
                                       itemCount: 5,
@@ -734,20 +709,26 @@ class _CommunePageState extends State<CommunePage> {
                                       itemPadding: EdgeInsets.symmetric(horizontal: 0),
                                       direction: Axis.horizontal,
                                     ),
-                                  ]),
-                                  Text(
-                                      data["date"],
-                                      style: TextStyle(color: SecondColor),
-                                    ),
                                 ],
                               ),
-                            ),
+                              Row(
+                                children: [
+                                  Text("DATE ",style: TextStyle(
+                                    color: MainColor
+                                  ),),
+                                  Text(data["date"],style: TextStyle(
+                                    color: SecondColor
+                                  ),),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    );
-                  }),
-                );
+                    ),
+                  );
+                }),
+              );
               }else{
                 return CircularProgressIndicator();
               }

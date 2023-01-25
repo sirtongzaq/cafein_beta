@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:cafein_beta/page_store/napwarinmap_page.dart';
+import 'package:cafein_beta/page_store/napcoffeemap_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -288,7 +287,7 @@ class _NapcoffeePageState extends State<NapcoffeePage> {
                                             Navigator.push(
                                           context,
                                           CupertinoPageRoute(
-                                              builder: (context) => const NapswarinMapPage()),
+                                              builder: (context) => const NapcoffeeMapPage()),
                                         );
                                           },
                                           child: Icon(
@@ -669,65 +668,40 @@ class _NapcoffeePageState extends State<NapcoffeePage> {
                     shrinkWrap: true,
                     itemBuilder: (context,i){
                       var data = snapshot.data!.docs[i];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 350,
-                            height: 400,
-                            decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                    children: [
-                                      Text(
-                                        data["email"],
-                                        style: TextStyle(color: MainColor),
-                                      ),
-                                      SizedBox(
-                                        width: 150,
-                                      ),
-                                      LikeButton(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          size: 20,
-                                          likeCount: data["likecount"],
-                                          likeBuilder: (bool isLiked) {
-                                            return Icon(
-                                              Icons.favorite,
-                                              color: isLiked ? MainColor : Colors.grey,
-                                              size: 20,
-                                            );
-                                          }),
-                                    ],
-                                  ),
-                                  Container(
-                                  height: 160 ,
-                                  child: Text(
-                                    data["message"],
-                                    style: TextStyle(color: SecondColor),
-                                  ),
-                                ),
-                                  Image.network(
-                                    data["image"],
-                                    width: 150,
-                                    height: 150,
-                                    ),
-                                  Row(children: [
-                                    Text(
-                                      "RATING",
-                                      style: TextStyle(color: MainColor),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    RatingBarIndicator(
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Card(
+                      elevation: 10,
+                      margin: EdgeInsets.all(10),
+                      child: Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Email ",style: TextStyle(
+                                    color: MainColor
+                                  ),),
+                                  Text(data["email"],style: TextStyle(
+                                    color: SecondColor
+                                  ),),
+                                ],
+                              ),
+                              Container(
+                                width: 300,
+                                child: Text(data["message"],style: TextStyle(
+                                      color: SecondColor
+                                    ),),
+                              ),
+                              Image.network(data["image"],width: 300),
+                              Row(
+                                children: [
+                                  Text("RATING ",style: TextStyle(
+                                    color: MainColor
+                                  ),),
+                                  RatingBarIndicator(
                                       rating: data["rating"],
                                       itemBuilder: (context, index) => TestIMG,
                                       itemCount: 5,
@@ -735,20 +709,26 @@ class _NapcoffeePageState extends State<NapcoffeePage> {
                                       itemPadding: EdgeInsets.symmetric(horizontal: 0),
                                       direction: Axis.horizontal,
                                     ),
-                                  ]),
-                                  Text(
-                                      data["date"],
-                                      style: TextStyle(color: SecondColor),
-                                    ),
                                 ],
                               ),
-                            ),
+                              Row(
+                                children: [
+                                  Text("DATE ",style: TextStyle(
+                                    color: MainColor
+                                  ),),
+                                  Text(data["date"],style: TextStyle(
+                                    color: SecondColor
+                                  ),),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    );
-                  }),
-                );
+                    ),
+                  );
+                }),
+              );
               }else{
                 return CircularProgressIndicator();
               }

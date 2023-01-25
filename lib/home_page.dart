@@ -5,15 +5,13 @@ import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/category_page/bakery_page.dart';
 import 'package:cafein_beta/category_page/hybridbar_page.dart';
 import 'package:cafein_beta/category_page/speedbar_page.dart';
-import 'package:cafein_beta/community_page.dart';
+import 'package:cafein_beta/community/community_page.dart';
 import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cafein_beta/category_page/slowbar_page.dart';
 import 'package:cafein_beta/page_store/sangob_page.dart';
 import 'package:cafein_beta/post_data.dart';
 import 'package:cafein_beta/profile_page.dart';
 import 'package:cafein_beta/search_page.dart';
-import 'package:cafein_beta/test_firestore.dart';
-import 'package:cafein_beta/whereiam_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +38,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final SecondColor = Color.fromRGBO(0, 0, 0, 0.50);
   final BgColor = Color(0xFFE6E6E6);
   final MainColor = Color(0xFFF2D1AF);
-  final Logo = Image(image: AssetImage('assets/cafein_logo.png'),fit: BoxFit.cover,);
-  final TestIMG = ImageIcon(AssetImage('assets/ratting.png',),color: Color(0xFFF2D1AF));
+  final Logo = Image(
+    image: AssetImage('assets/cafein_logo.png'),
+    fit: BoxFit.cover,
+  );
+  final TestIMG = ImageIcon(
+      AssetImage(
+        'assets/ratting.png',
+      ),
+      color: Color(0xFFF2D1AF));
   var latitude = '';
   var longitude = '';
   var address = 'Loading';
@@ -65,44 +70,69 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     SagnobPage(),
     NapswarinPage(),
   ];
+
+  Future<void> likePost(String postid, String uid, List likes) async {
+    try {
+      if (likes.contains(uid)) {
+        await FirebaseFirestore.instance
+            .collection("community")
+            .doc(postid)
+            .update({
+          "likes": FieldValue.arrayRemove([uid])
+        });
+      } else {
+        await FirebaseFirestore.instance
+            .collection("community")
+            .doc(postid)
+            .update({
+          "likes": FieldValue.arrayUnion([uid])
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   Future<void> getAddressFromLatLang(Position position) async {
     List<Placemark> placemark =
         await placemarkFromCoordinates(position.latitude, position.longitude);
-    Placemark place = placemark[0];
-    address = 'Address : ${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}';
-    print(address);
+    setState(() {
+      Placemark place = placemark[0];
+      address =
+          'Address : ${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}';
+      print(address);
+    });
   }
 
   Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-  LocationData? currentLocation;
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    return Future.error('Location services are disabled.');
-  }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      return Future.error('Location permissions are denied');
+    bool serviceEnabled;
+    LocationPermission permission;
+    LocationData? currentLocation;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
     }
-  }
-  
-  if (permission == LocationPermission.deniedForever) {
-    return Future.error(
-      'Location permissions are permanently denied, we cannot request permissions.');
-  } 
-  streamSubscription = Geolocator.getPositionStream().listen((Position position) {
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    streamSubscription =
+        Geolocator.getPositionStream().listen((Position position) {
       latitude = 'Latitude : ${position.latitude}';
       longitude = 'Longitude : ${position.longitude}';
       getAddressFromLatLang(position);
     });
-  return await Geolocator.getCurrentPosition();
+    return await Geolocator.getCurrentPosition();
   }
-
-
 
   @override
   void dispose() {
@@ -138,11 +168,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     TabController _tabController = TabController(length: 3, vsync: this);
     return Scaffold(
-      drawer: Drawer(//drawer
+      drawer: Drawer(
+        //drawer
         child: Column(
           children: [
             Material(
@@ -151,7 +183,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (context) => const ProfilePage()),
+                    CupertinoPageRoute(
+                        builder: (context) => const ProfilePage()),
                   );
                 },
                 child: Container(
@@ -159,35 +192,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   child: Column(
                     children: [
                       StreamBuilder(
-                        stream: FirebaseFirestore.instance.collection("users").where("uid", isEqualTo: user.uid).snapshots(),
-                        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if(snapshot.hasData){
-                          return ListView.builder(
-                            itemCount: snapshot.data!.docs.length,
-                            shrinkWrap: true,
-                            itemBuilder: (context,i){
-                              var data = snapshot.data!.docs[i];
-                            return Column(
-                              children: [
-                                CircleAvatar(
-                                  radius: 52,
-                                  backgroundImage: NetworkImage(data["image"]),
-                                ),
-                                Text(
-                                  data["username"],
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                Text(
-                                  data["email"],
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            );
-                          });
-                        }else{
-                          return CircularProgressIndicator();
-                        }
-                      }),
+                          stream: FirebaseFirestore.instance
+                              .collection("users")
+                              .where("uid", isEqualTo: user.uid)
+                              .snapshots(),
+                          builder:
+                              (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                            if (snapshot.hasData) {
+                              return ListView.builder(
+                                  itemCount: snapshot.data!.docs.length,
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, i) {
+                                    var data = snapshot.data!.docs[i];
+                                    return Column(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 52,
+                                          backgroundImage:
+                                              NetworkImage(data["image"]),
+                                        ),
+                                        Text(
+                                          data["username"],
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        Text(
+                                          data["email"],
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          }),
                     ],
                   ),
                 ),
@@ -279,7 +317,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: SafeArea(
         child: Column(
           children: <Widget>[
-            AnimatedContainer(// appbar
+            AnimatedContainer(
+              // appbar
               height: _showAppbar ? 56.0 : 0.0,
               duration: Duration(milliseconds: 200),
               child: AppBar(
@@ -296,34 +335,38 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 child: Column(
                   children: <Widget>[
                     SizedBox(height: 10),
-                    Container(// location
+                    Container(
+                      // location
                       height: 60,
                       width: 350,
                       decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(0, 4),
-                              blurRadius: 10.0),
-                          BoxShadow(
-                              color: ShawdowColor,
-                              offset: Offset(4, 0),
-                              blurRadius: 10.0)
-                        ],
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(5),
-                          bottomRight: Radius.circular(5),
-                          topLeft: Radius.circular(5),
-                          bottomLeft: Radius.circular(5),
-                        )),
-                      child: Center(child: Text(
+                          boxShadow: [
+                            BoxShadow(
+                                color: ShawdowColor,
+                                offset: Offset(0, 4),
+                                blurRadius: 10.0),
+                            BoxShadow(
+                                color: ShawdowColor,
+                                offset: Offset(4, 0),
+                                blurRadius: 10.0)
+                          ],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(5),
+                            bottomRight: Radius.circular(5),
+                            topLeft: Radius.circular(5),
+                            bottomLeft: Radius.circular(5),
+                          )),
+                      child: Center(
+                          child: Text(
                         address,
                         style: TextStyle(
-                        color: MainColor,
-                      ),)),
+                          color: MainColor,
+                        ),
+                      )),
                     ),
-                    Container(// tab hearder
+                    Container(
+                      // tab hearder
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: TabBar(
@@ -349,7 +392,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Container(// tab body
+                    Container(
+                      // tab body
                       width: double.maxFinite,
                       height: 300,
                       child: TabBarView(
@@ -740,7 +784,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Padding(// category header
+                    Padding(
+                      // category header
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Align(
                           alignment: Alignment.topLeft,
@@ -749,7 +794,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             style: TextStyle(color: SecondColor, fontSize: 15),
                           )),
                     ),
-                    Padding(// category body
+                    Padding(
+                      // category body
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Column(
                         children: [
@@ -759,10 +805,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => const SlowbarPage()),
+                                    CupertinoPageRoute(
+                                        builder: (context) =>
+                                            const SlowbarPage()),
                                   );
                                 },
-                                child: Padding( // slowbar tab
+                                child: Padding(
+                                  // slowbar tab
                                   padding: const EdgeInsets.all(5),
                                   child: Container(
                                     width: 110,
@@ -812,7 +861,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => const SpeedbarPage()),
+                                    CupertinoPageRoute(
+                                        builder: (context) =>
+                                            const SpeedbarPage()),
                                   );
                                 },
                                 child: Padding(
@@ -865,7 +916,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => const HybridPage()),
+                                    CupertinoPageRoute(
+                                        builder: (context) =>
+                                            const HybridPage()),
                                   );
                                 },
                                 child: Padding(
@@ -967,7 +1020,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => const BakeryPage()),
+                                    CupertinoPageRoute(
+                                        builder: (context) =>
+                                            const BakeryPage()),
                                   );
                                 },
                                 child: Padding(
@@ -1020,7 +1075,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    CupertinoPageRoute(builder: (context) => const CommunityPage()),
+                                    CupertinoPageRoute(
+                                        builder: (context) =>
+                                            const CommunityPage()),
                                   );
                                 },
                                 child: Padding(
@@ -1080,9 +1137,156 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       child: Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            "CONTENT",
+                            "latest review".toUpperCase(),
                             style: TextStyle(color: SecondColor, fontSize: 15),
                           )),
+                    ),
+                    StreamBuilder(
+                        //reviews
+                        stream: FirebaseFirestore.instance
+                            .collection("reviews")
+                            .orderBy("date", descending: true)
+                            .limit(5)
+                            .snapshots(),
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.hasData) {
+                            return Container(
+                              height: 400,
+                              child: ListView.builder(
+                                  itemCount: snapshot.data!.docs.length,
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, i) {
+                                    var data = snapshot.data!.docs[i];
+                                    int likesCount = data["likes"].length;
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      child: Card(
+                                        elevation: 10,
+                                        margin: EdgeInsets.all(10),
+                                        child: Container(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Email ",
+                                                      style: TextStyle(
+                                                          color: MainColor),
+                                                    ),
+                                                    Text(
+                                                      data["email"],
+                                                      style: TextStyle(
+                                                          color: SecondColor),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Container(
+                                                  width: 300,
+                                                  child: Text(
+                                                    data["message"],
+                                                    style: TextStyle(
+                                                        color: SecondColor),
+                                                  ),
+                                                ),
+                                                Image.network(data["image"],
+                                                    width: 300),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "RATING ",
+                                                      style: TextStyle(
+                                                          color: MainColor),
+                                                    ),
+                                                    RatingBarIndicator(
+                                                      rating: data["rating"],
+                                                      itemBuilder:
+                                                          (context, index) =>
+                                                              TestIMG,
+                                                      itemCount: 5,
+                                                      itemSize: 15,
+                                                      itemPadding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 0),
+                                                      direction:
+                                                          Axis.horizontal,
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "DATE ",
+                                                      style: TextStyle(
+                                                          color: MainColor),
+                                                    ),
+                                                    Text(
+                                                      data["date"],
+                                                      style: TextStyle(
+                                                          color: SecondColor),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "STORE ",
+                                                      style: TextStyle(
+                                                          color: MainColor),
+                                                    ),
+                                                    Text(
+                                                      data["store_name"],
+                                                      style: TextStyle(
+                                                          color: SecondColor),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    GestureDetector(
+                                                      child: Icon(
+                                                        Icons.favorite,
+                                                        color: (data["likes"]
+                                                                .contains(
+                                                                    user.uid))
+                                                            ? MainColor
+                                                            : SecondColor,
+                                                      ),
+                                                      onTap: () {
+                                                        likePost(
+                                                          data["postid"],
+                                                          user.uid,
+                                                          data["likes"],
+                                                        );
+                                                      },
+                                                    ),
+                                                    Text(
+                                                      likesCount.toString(),
+                                                      style: TextStyle(
+                                                          color: SecondColor),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                            );
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        }),
+                    SizedBox(
+                      height: 15,
                     ),
                   ],
                 ),

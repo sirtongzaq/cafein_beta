@@ -39,7 +39,8 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
       'https://firebasestorage.googleapis.com/v0/b/cafein-beta.appspot.com/o/images%2Fempty.jpg?alt=media&token=ffe447ef-ea0c-45cc-b44a-af71253ed675';
   var user = FirebaseAuth.instance.currentUser!;
   String postId = Uuid().v4();
-
+  List<String> items = ["ความรู้", "สูตรกาแฟ", "เมล็ดกาแฟ"];
+  String? selectedItem = "ความรู้";
   Future UploadIMG() async {
     ImagePicker imagePicker = ImagePicker();
     XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -79,6 +80,7 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
           datetimenow,
           imageUrl,
           postId,
+          selectedItem.toString(),
         );
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Thank you for review")));
@@ -89,7 +91,7 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
   }
 
   Future addReview(String tile, String message, String uid, String email,
-      datetimenow, image, String postid) async {
+      datetimenow, image, String postid, String category) async {
     await FirebaseFirestore.instance.collection("community").doc(postId).set({
       'title': tile,
       'message': message,
@@ -98,6 +100,7 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
       'date': datetimenow,
       'image': imageUrl,
       'postid': postid,
+      'category': category,
       'likes': [],
     });
   }
@@ -107,6 +110,8 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Post"),
+        toolbarHeight: 70,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -148,6 +153,34 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
                     ),
                   ),
                 ),
+                SizedBox(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        hintText: "Category",
+                        prefixIcon: Icon(Icons.category),
+                      ),
+                      value: selectedItem,
+                      items: items
+                          .map((item) => DropdownMenuItem<String>(
+                              value: item,
+                              child: Text(
+                                item,
+                                style: TextStyle(color: SecondColor),
+                              )))
+                          .toList(),
+                      onChanged: (item) => setState(() => selectedItem = item),
+                    ),
+                  ),
+                ),
+                Center(
+                    child: Container(
+                        child: Image.network(
+                  imageUrl,
+                  width: 310,
+                  height: 300,
+                ))),
                 Row(children: [
                   //,img,post
                   Padding(
@@ -183,13 +216,6 @@ class _CommunityPostPageState extends State<CommunityPostPage> {
                     ),
                   ),
                 ]),
-                Center(
-                    child: Container(
-                        child: Image.network(
-                  imageUrl,
-                  width: 300,
-                  height: 300,
-                ))),
               ],
             ),
           ),

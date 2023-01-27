@@ -1,17 +1,15 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, non_constant_identifier_names
 
-import 'package:cafein_beta/home_page.dart';
-import 'package:cafein_beta/login_page.dart';
-import 'package:cafein_beta/signup_page.dart';
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:core';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class SignupPage extends StatefulWidget {
   final VoidCallback showLoginPage;
@@ -61,7 +59,7 @@ class _SignupPageState extends State<SignupPage> {
   final _confirmpasswordController = TextEditingController();
   final _usernameController = TextEditingController();
   final _genderController = TextEditingController();
-  final _ageController = TextEditingController();
+  TextEditingController _ageController = TextEditingController();
   bool _isLoading = false;
 
   Future UploadIMG() async {
@@ -102,9 +100,16 @@ class _SignupPageState extends State<SignupPage> {
           uid,
           _emailController.text.trim(),
           _usernameController.text.trim(),
-          _ageController.text.trim(),
+          int.parse(_ageController.text),
           selectedItem.toString(),
           imageUrl,
+        );
+        // add user to api
+        postUserData(
+          _usernameController.text.trim(),
+          selectedItem.toString(),
+          int.parse(_ageController.text),
+          uid,
         );
         setState(() {
           _isLoading = false;
@@ -139,7 +144,7 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
-  Future addUserDetails(String uid, String email, String username, String age,
+  Future addUserDetails(String uid, String email, String username, int age,
       String gender, image) async {
     await FirebaseFirestore.instance.collection("users").doc(uid).set({
       'uid': uid,
@@ -157,6 +162,33 @@ class _SignupPageState extends State<SignupPage> {
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future postUserData(
+    String username,
+    String gender,
+    int age,
+    String uid,
+  ) async {
+    try {
+      var url = Uri.https(
+          '6336-2001-fb1-148-7898-c1af-9299-adf3-5e89.ap.ngrok.io', '/take');
+      final response = await http.post(url,
+          body: jsonEncode({
+            "name": username,
+            "gender": gender,
+            "age": age,
+            "uid": uid,
+          }),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        print(response.body);
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 

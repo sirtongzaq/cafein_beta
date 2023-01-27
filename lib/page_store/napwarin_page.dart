@@ -1,5 +1,5 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:cafein_beta/page_store/napwarinmap_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,10 +8,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:like_button/like_button.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 class NapswarinPage extends StatefulWidget {
   const NapswarinPage({super.key});
@@ -33,14 +33,16 @@ class _NapswarinPageState extends State<NapswarinPage> {
       color: Color(0xFFF2D1AF));
   final _messageController = TextEditingController();
   String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
-  String imageUrl = '';
+  String imageUrl =
+      'https://firebasestorage.googleapis.com/v0/b/cafein-beta.appspot.com/o/images%2Fempty.jpg?alt=media&token=ffe447ef-ea0c-45cc-b44a-af71253ed675';
   double? ratings;
   var likecounts = 0;
   var user = FirebaseAuth.instance.currentUser!;
-  String A = "NAP's X Warin";
+  String A = "Nap x Warin";
   String datetimenow = DateTime.now().toString().substring(0, 16);
   String postId = Uuid().v4();
   String doc_store = "2rUPGKUnr8XbjjvOyNEQ";
+
   Future<void> likePost(String postid, String uid, List likes) async {
     try {
       if (likes.contains(uid)) {
@@ -127,6 +129,13 @@ class _NapswarinPageState extends State<NapswarinPage> {
           datetimenow,
           postId,
         );
+        postUserData(
+          user.uid,
+          ratings,
+          A,
+          _messageController.text.trim(),
+          datetimenow,
+        );
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Thank you for review")));
       }
@@ -149,6 +158,35 @@ class _NapswarinPageState extends State<NapswarinPage> {
       'postid': postid,
       'likes': []
     });
+  }
+
+  Future postUserData(
+    String uid,
+    rating,
+    String store,
+    String message,
+    String date,
+  ) async {
+    try {
+      var url = Uri.https(
+          '6336-2001-fb1-148-7898-c1af-9299-adf3-5e89.ap.ngrok.io', '/review');
+      final response = await http.post(url,
+          body: jsonEncode({
+            "uid": uid,
+            "rating": rating,
+            "store": A,
+            "message": message,
+            "date": datetimenow,
+          }),
+          headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        print(response.body);
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
@@ -310,7 +348,8 @@ class _NapswarinPageState extends State<NapswarinPage> {
                                                         color: MainColor),
                                                   ),
                                                   Text(
-                                                    data["type"].toUpperCase(),
+                                                    data["type"][0]
+                                                        .toUpperCase(),
                                                     style: TextStyle(
                                                         color: SecondColor),
                                                   ),
@@ -381,7 +420,9 @@ class _NapswarinPageState extends State<NapswarinPage> {
                                                   horizontal: 0),
                                               direction: Axis.horizontal,
                                             ),
-                                            SizedBox(width: 75,),
+                                            SizedBox(
+                                              width: 75,
+                                            ),
                                             Row(
                                               children: [
                                                 GestureDetector(
@@ -398,7 +439,7 @@ class _NapswarinPageState extends State<NapswarinPage> {
                                                       data["likes"],
                                                     );
                                                   },
-                                                ),                           
+                                                ),
                                                 Text(
                                                   likesStore.toString(),
                                                   style: TextStyle(
@@ -880,8 +921,8 @@ class _NapswarinPageState extends State<NapswarinPage> {
                                             ),
                                             Text(
                                               likesCount.toString(),
-                                              style: TextStyle(
-                                                  color: SecondColor),
+                                              style:
+                                                  TextStyle(color: SecondColor),
                                             ),
                                           ],
                                         ),
@@ -910,14 +951,9 @@ class _NapswarinPageState extends State<NapswarinPage> {
             SizedBox(
               height: 10,
             ),
-            Container(
+            Card(
               // comment
-              width: 350,
-              height: 250,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.white,
-              ),
+              margin: EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -941,6 +977,13 @@ class _NapswarinPageState extends State<NapswarinPage> {
                       ),
                     ),
                   ),
+                  Center(
+                      child: Container(
+                          child: Image.network(
+                    imageUrl,
+                    width: 330,
+                    height: 300,
+                  ))),
                   Row(children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
@@ -982,7 +1025,10 @@ class _NapswarinPageState extends State<NapswarinPage> {
                       onTap: () {
                         Post();
                         _messageController.clear();
-                        imageUrl = '';
+                        setState(() {
+                          imageUrl =
+                              'https://firebasestorage.googleapis.com/v0/b/cafein-beta.appspot.com/o/images%2Fempty.jpg?alt=media&token=ffe447ef-ea0c-45cc-b44a-af71253ed675';
+                        });
                       },
                       child: Icon(
                         Icons.arrow_circle_right,

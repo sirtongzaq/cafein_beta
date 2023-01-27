@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -19,30 +20,53 @@ class _BannMapPagePageState extends State<BannMapPage> {
   final MainColor = Color(0xFFF2D1AF);
   PolylinePoints polylinePoints = PolylinePoints();
   String googleAPiKey = "AIzaSyDDmD362j1kUlrRXcAJ8OoHBYCKVpzt1D8";
-  static const LatLng sourceLocation = LatLng(15.282450569719284, 104.8333997276588);
-  static const LatLng destination = LatLng(15.17330272, 104.8559965);
+  static const LatLng destination =
+      LatLng(15.17330272, 104.8559965);
   List<LatLng> polylineCoordinates = [];
   LocationData? currentLocation;
 
-  void getCurrentLocation (){
+  BitmapDescriptor currentLocationIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor destinationIcon = BitmapDescriptor.defaultMarker;
+
+  void setMakerIcon() {
+    BitmapDescriptor.fromAssetImage(ImageConfiguration.empty, "assets/pin.png")
+        .then(
+      (icon) {
+        destinationIcon = icon;
+      },
+    );
+    BitmapDescriptor.fromAssetImage(
+            ImageConfiguration.empty, "assets/pin_me.png")
+        .then(
+      (icon) {
+        currentLocationIcon = icon;
+      },
+    );
+  }
+
+  void getCurrentLocation() {
     Location location = Location();
 
     location.getLocation().then(
       (location) {
-      currentLocation = location;
-    },);
+        currentLocation = location;
+      },
+    );
 
-    location.onLocationChanged.listen((newLoc) {
-      currentLocation = newLoc;
-      setState(() {});
-    },);
+    location.onLocationChanged.listen(
+      (newLoc) {
+        currentLocation = newLoc;
+        setState(() {});
+      },
+    );
   }
 
   void getPolyPoints() async {
+    var currentPosition = await Geolocator.getCurrentPosition();
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      googleAPiKey, 
-      PointLatLng(sourceLocation.latitude, sourceLocation.longitude),
+      googleAPiKey,
+      PointLatLng(currentPosition.latitude, currentPosition.longitude),
       PointLatLng(destination.latitude, destination.longitude),
     );
 
@@ -50,16 +74,16 @@ class _BannMapPagePageState extends State<BannMapPage> {
       result.points.forEach(
         (PointLatLng point) => polylineCoordinates.add(
           LatLng(point.latitude, point.longitude),
-          ),
+        ),
       );
-      setState(() {  
-      });
+      setState(() {});
     }
   }
 
   @override
   void initState() {
     getCurrentLocation();
+    setMakerIcon();
     getPolyPoints();
     super.initState();
   }
@@ -77,38 +101,41 @@ class _BannMapPagePageState extends State<BannMapPage> {
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: currentLocation == null
-            ? const Center(child: CircularProgressIndicator(),)
-          :GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition: CameraPosition(
-            target: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-            zoom: 15,
-          ),
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
-          polylines: {
-            Polyline(polylineId: PolylineId("route"),
-            points: polylineCoordinates,
-            color: MainColor,
-            width: 5,
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(
+                    currentLocation!.latitude!, currentLocation!.longitude!),
+                zoom: 15,
+              ),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              polylines: {
+                Polyline(
+                  polylineId: PolylineId("route"),
+                  points: polylineCoordinates,
+                  color: Colors.deepPurpleAccent,
+                  width: 5,
+                ),
+              },
+              markers: {
+                Marker(
+                  markerId: MarkerId("currentLocation"),
+                  icon: currentLocationIcon,
+                  position: LatLng(
+                      currentLocation!.latitude!, currentLocation!.longitude!),
+                ),
+                Marker(
+                  markerId: MarkerId("destination"),
+                  icon: destinationIcon,
+                  position: destination,
+                ),
+              },
             ),
-          },
-          markers: {
-            Marker(
-              markerId: MarkerId("currentLocation"),
-              position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-            ),
-            const Marker(
-              markerId: MarkerId("source"),
-              position: sourceLocation,
-            ),
-            const Marker(
-              markerId: MarkerId("destination"),
-              position: destination,
-            ),
-          },
-        ),
-      );
-    }
+    );
   }
+}

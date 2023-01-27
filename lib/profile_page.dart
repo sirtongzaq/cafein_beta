@@ -111,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: SecondColor,),
                             SizedBox(width: 10),
                             Text(
-                              data["age"],
+                              data["age"].toString(),
                               style: TextStyle(color: SecondColor),
                             ),
                           ],

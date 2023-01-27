@@ -38,6 +38,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -74,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
       } 
       break; 
      
-      case "NAP's X Warin": { 
+      case "Nap x Warin": { 
          //statements; 
    Navigator.push(context,CupertinoPageRoute(builder: (redContext) => NapswarinPage()));
       } 
@@ -206,7 +208,7 @@ class _SearchPageState extends State<SearchPage> {
       } 
       break; 
 
-      case "LAVA JAVA Coffee Roasters": { 
+      case "LAVA  JAVA Coffee Roasters": { 
          //statements; 
    Navigator.push(context,CupertinoPageRoute(builder: (redContext) => LavaPage()));
       } 
@@ -283,6 +285,8 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: MainColor,
+        toolbarHeight: 70,
         title: Container(
         width: double.infinity,
         height: 50,
@@ -305,6 +309,7 @@ class _SearchPageState extends State<SearchPage> {
           Expanded(child: ListView.builder(
             itemCount: SearchResult.length,
             itemBuilder: (context, index){
+              var rt = SearchResult[index]["rating"];
               return Card( 
                 child: ListTile(
                   leading: Image.network(SearchResult[index]["img_cover"][0],fit: BoxFit.cover,),
@@ -313,9 +318,17 @@ class _SearchPageState extends State<SearchPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Rating : ${SearchResult[index]["rating"]}'),
-                        Text('Type : ${SearchResult[index]["type"]}'),
                         Text('Address : ${SearchResult[index]["address"]}'),
+                        Text('Type : ${SearchResult[index]["type"]}'),
+                        RatingBarIndicator(
+                                rating: double.parse(rt),
+                                itemBuilder: (context, index) => TestIMG,
+                                itemCount: 5,
+                                itemSize: 20,
+                                itemPadding:
+                                    EdgeInsets.symmetric(horizontal: 0),
+                                direction: Axis.horizontal,
+                              ),
                       ],
                     ),
                   ),

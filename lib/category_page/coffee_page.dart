@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:http/http.dart' as http;
 import 'package:cafein_beta/home_page.dart';
 import 'package:cafein_beta/page_store/11-11gallery_page.dart';
 import 'package:cafein_beta/page_store/Mind-k_page.dart';
@@ -39,20 +37,31 @@ import 'package:cafein_beta/page_store/stufe_page.dart';
 import 'package:cafein_beta/page_store/treecaferimmoon_Page.dart';
 import 'package:cafein_beta/page_store/yuanjai_page.dart';
 
-class SlowbarPage extends StatefulWidget {
-  const SlowbarPage({super.key});
+class CoffeePage extends StatefulWidget {
+  const CoffeePage({super.key});
 
   @override
-  State<SlowbarPage> createState() => _SlowbarPageState();
+  State<CoffeePage> createState() => _CoffeePageState();
 }
 
-class _SlowbarPageState extends State<SlowbarPage> {
-  List<dynamic> slowbar_Data = [];
+class _CoffeePageState extends State<CoffeePage> {
+  final maxLines = 5;
+  final ShawdowColor = Color.fromRGBO(0, 0, 0, 0.25);
+  final SecondColor = Color.fromRGBO(0, 0, 0, 0.50);
+  final BgColor = Color(0xFFE6E6E6);
+  final MainColor = Color(0xFFF2D1AF);
   final TestIMG = ImageIcon(
-      AssetImage(
-        'assets/ratting.png',
-      ),
-      color: Color(0xFFF2D1AF));
+    AssetImage(
+      'assets/ratting.png',
+    ),
+    color: Color(0xFFF2D1AF),
+    size: 1,
+  );
+  final Logo = Image(
+    image: AssetImage('assets/cafein_logo.png'),
+    fit: BoxFit.cover,
+  );
+
   void gotoPage(String pageName) {
     switch (pageName) {
       case 'Home':
@@ -340,7 +349,7 @@ class _SlowbarPageState extends State<SlowbarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Slowbar'),
+        title: const Text('Coffee'),
         toolbarHeight: 70,
         elevation: 0,
       ),
@@ -348,7 +357,7 @@ class _SlowbarPageState extends State<SlowbarPage> {
           //reviews
           stream: FirebaseFirestore.instance
               .collection("search")
-              .where("type", arrayContains: "slowbar")
+              .orderBy("rating", descending: true)
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasData) {

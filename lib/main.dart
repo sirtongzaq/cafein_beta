@@ -2,11 +2,19 @@ import 'package:cafein_beta/auth/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cafein_beta/api_service/api_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ApiProvider(),
+      child: MyApp(),
+    ),
+  );
+  
 }
 
 class MyApp extends StatelessWidget {

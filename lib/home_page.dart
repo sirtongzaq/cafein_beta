@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:cafein_beta/Test_API.dart';
+import 'package:cafein_beta/api_service/api_provider.dart';
 import 'package:cafein_beta/auth/main_page.dart';
 import 'package:cafein_beta/category_page/bakery_page.dart';
 import 'package:cafein_beta/category_page/coffee_page.dart';
 import 'package:cafein_beta/category_page/hybridbar_page.dart';
 import 'package:cafein_beta/category_page/speedbar_page.dart';
 import 'package:cafein_beta/community/community_page.dart';
-import 'package:cafein_beta/page_store/napwarin_page.dart';
 import 'package:cafein_beta/category_page/slowbar_page.dart';
-import 'package:cafein_beta/page_store/sangob_page.dart';
 import 'package:cafein_beta/post_data.dart';
 import 'package:cafein_beta/profile_page.dart';
 import 'package:cafein_beta/search_page.dart';
@@ -20,44 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:like_button/like_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
-import 'package:http/http.dart' as http;
-import 'package:cafein_beta/home_page.dart';
-import 'package:cafein_beta/page_store/11-11gallery_page.dart';
-import 'package:cafein_beta/page_store/Mind-k_page.dart';
-import 'package:cafein_beta/page_store/Mypapilio_page.dart';
-import 'package:cafein_beta/page_store/abe_page.dart';
-import 'package:cafein_beta/page_store/amarna_page.dart';
-import 'package:cafein_beta/page_store/anna_page.dart';
-import 'package:cafein_beta/page_store/attaroast_page.dart';
-import 'package:cafein_beta/page_store/balcony_page.dart';
-import 'package:cafein_beta/page_store/bann_page.dart';
-import 'package:cafein_beta/page_store/blendstorm_page.dart';
-import 'package:cafein_beta/page_store/bluescoffee_page.dart';
-import 'package:cafein_beta/page_store/bossa_page.dart';
-import 'package:cafein_beta/page_store/commune_page.dart';
-import 'package:cafein_beta/page_store/godfather_page.dart';
-import 'package:cafein_beta/page_store/impression_page.dart';
-import 'package:cafein_beta/page_store/lava_page.dart';
-import 'package:cafein_beta/page_store/life_page.dart';
-import 'package:cafein_beta/page_store/napcoffee_page.dart';
-import 'package:cafein_beta/page_store/napwarin_page.dart';
-import 'package:cafein_beta/page_store/penser_page.dart';
-import 'package:cafein_beta/page_store/phantae_page.dart';
-import 'package:cafein_beta/page_store/red_page.dart';
-import 'package:cafein_beta/page_store/rogue_page.dart';
-import 'package:cafein_beta/page_store/roof_page.dart';
-import 'package:cafein_beta/page_store/rosieholm_page.dart';
-import 'package:cafein_beta/page_store/round_page.dart';
-import 'package:cafein_beta/page_store/saereesook_page.dart';
-import 'package:cafein_beta/page_store/sangob_page.dart';
-import 'package:cafein_beta/page_store/snoopcat_page.dart';
-import 'package:cafein_beta/page_store/songsarn_page.dart';
-import 'package:cafein_beta/page_store/stufe_page.dart';
-import 'package:cafein_beta/page_store/treecaferimmoon_Page.dart';
-import 'package:cafein_beta/page_store/yuanjai_page.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -89,371 +52,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late String _uid;
   late int _age;
 
-  List images = ["coffee01.jpg", "coffee02.jpg", "coffee03.jpg"];
-  List names = ["Nap's x Warin", "Songsarn", "NoteCoffee"];
-  List des = [
-    "ร้านกาแฟบรรยากาศสบายๆ ฝั่งวาริน กาแฟรสดี มีเมนูหลากหลาย",
-    "Normal Taste",
-    "Bad Taste"
-  ];
-  List Lc = [
-    1,
-    2,
-    3,
-  ];
-  List<double> Rt = [3.5, 4, 5];
-
-  List Routes = [
-    NapswarinPage(),
-    SagnobPage(),
-    NapswarinPage(),
-  ];
-  void gotoPage(String pageName) {
-    switch (pageName) {
-      case 'Home':
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => HomePage()));
-        }
-        break;
-
-      case "Nap x Warin":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => NapswarinPage()));
-        }
-        break;
-
-      case "sangob":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => SagnobPage()));
-        }
-        break;
-
-      case "Tree Cafe Rim Moon":
-        {
-          //statements;
-          Navigator.push(
-              context,
-              CupertinoPageRoute(
-                  builder: (redContext) => TreecaferimmoonPage()));
-        }
-        break;
-
-      case "MiND-K coffee and bake":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => MindkPage()));
-        }
-        break;
-
-      case "NAP's Coffee & Roasters":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => NapcoffeePage()));
-        }
-        break;
-
-      case "Yuanjai Café":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => YuanjaiPage()));
-        }
-        break;
-
-      case "Amarna":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => AmarnaPage()));
-        }
-        break;
-
-      case "11.11 Gallery and Coffee":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => GalleryPage()));
-        }
-        break;
-
-      case "Phantae Coffee":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => PhantaePage()));
-        }
-        break;
-
-      case "ROSIEHOLM":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => RosieholmPage()));
-        }
-        break;
-
-      case "SongSarn":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => SongsarnPage()));
-        }
-        break;
-
-      case "Blues Coffee":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => BluescoffeePage()));
-        }
-        break;
-
-      case "Blendstorm Coffee Roasters":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => BlendstormPage()));
-        }
-        break;
-
-      case "Commune Drink/Talk/Share":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => CommunePage()));
-        }
-        break;
-
-      case "Abe Specialty Coffee":
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => AbePage()));
-        }
-        break;
-
-      case "Rogue Roasters":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => RoguePage()));
-        }
-        break;
-
-      case "REDCOFFEE":
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => RedPage()));
-        }
-        break;
-
-      case "PENSER CAFE":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => PenserPage()));
-        }
-        break;
-
-      case "Snoopcat Cafe":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => SnoopcatPage()));
-        }
-        break;
-
-      case "Stufe coffee":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => StufePage()));
-        }
-        break;
-
-      case "Attaroast":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => AttaroastPage()));
-        }
-        break;
-
-      case "GODFATHER COFFEE":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => GodfatherPage()));
-        }
-        break;
-
-      case "LAVA  JAVA Coffee Roasters":
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => LavaPage()));
-        }
-        break;
-
-      case "Saereesook":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => SaereesookPage()));
-        }
-        break;
-
-      case "LIFE Roasters":
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => LifePage()));
-        }
-        break;
-
-      case "BaanHuakham Cafe & Farmstay":
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => BannPage()));
-        }
-        break;
-
-      case "Bossa cafe":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => BossaPage()));
-        }
-        break;
-
-      case "ROOF COFFEE":
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => RoofPage()));
-        }
-        break;
-
-      case "Impression Sunrise":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => ImpressionPage()));
-        }
-        break;
-
-      case "Anna Roasters":
-        {
-          //statements;
-          Navigator.push(
-              context, CupertinoPageRoute(builder: (redContext) => AnnaPage()));
-        }
-        break;
-
-      case "My Papilio":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => MypapilioPage()));
-        }
-        break;
-
-      case "BalconyKiss Coffee":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => BalconyPage()));
-        }
-        break;
-
-      case "r o u n d":
-        {
-          //statements;
-          Navigator.push(context,
-              CupertinoPageRoute(builder: (redContext) => RoundPage()));
-        }
-        break;
-
-      default:
-        {
-          throw Exception("Path ${pageName} not supported");
-        }
-    }
-  }
-
-  List<dynamic> Data = [];
-  getRecData() async {
-    var test = {
-      'name': 'chunnfriend',
-    };
-    var url = Uri.https(
-        '6336-2001-fb1-148-7898-c1af-9299-adf3-5e89.ap.ngrok.io',
-        '/recommend',
-        test);
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      setState(() {
-        Data = jsonData["data"];
-      });
-      print(Data);
-      print("Response success");
-    } else if (response.statusCode == 400) {
-      print('Bad Request: ${response.statusCode}');
-    } else {
-      print('Response status: ${response.statusCode}');
-    }
-  }
-  
-  List<dynamic> nearbyData = [];
-  getNearbyData() async {
-    Position position = await Geolocator.getCurrentPosition();
-    final lat_user = position.latitude;
-    final long_user = position.longitude;
-    final latlong_user = {
-      'latitude': '${lat_user}',
-      'longitude': '${long_user}'
-    };
-    var url = Uri.https(
-        '6336-2001-fb1-148-7898-c1af-9299-adf3-5e89.ap.ngrok.io',
-        '/recomnear',
-        latlong_user);
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      setState(() {
-        nearbyData = jsonData;
-      });
-      print("Response success");
-    } else {
-      print('Response status: ${response.statusCode}');
-    }
-  }
-
-  List<dynamic> popularData = [];
-  getPopularData() async {
-    var url = Uri.https(
-        '6336-2001-fb1-148-7898-c1af-9299-adf3-5e89.ap.ngrok.io',
-        '/recommend_populations');
-    var response = await http.get(url);
-    var jsonData = jsonDecode(response.body);
-    print('Response status: ${response.statusCode}');
-    setState(() {
-      popularData = jsonData['data'];
-    });
-    print("Response success");
-  }
-
   Future<void> likePost(String postid, String uid, List likes) async {
     try {
       if (likes.contains(uid)) {
@@ -461,14 +59,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             .collection("reviews")
             .doc(postid)
             .update({
-          "likes": FieldValue.arrayRemove([uid])
+          "likes": FieldValue.arrayRemove([uid]),
+          "likes_count": FieldValue.increment(-1),
         });
       } else {
         await FirebaseFirestore.instance
             .collection("reviews")
             .doc(postid)
             .update({
-          "likes": FieldValue.arrayUnion([uid])
+          "likes": FieldValue.arrayUnion([uid]),
+          "likes_count": FieldValue.increment(1),
         });
       }
     } catch (e) {
@@ -522,14 +122,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     _determinePosition();
-    getRecData();
-    getNearbyData();
-    getPopularData();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final apiProvider = Provider.of<ApiProvider>(context, listen: false);
     TabController _tabController = TabController(length: 3, vsync: this);
     return Scaffold(
       drawer: Drawer(
@@ -727,403 +325,448 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       child: TabBarView(
                         controller: _tabController,
                         children: [
-                          ListView.builder(
-                              // nearby
-                              itemCount: Data.length,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                final data_info = Data[index];
-                                final name = data_info['store'];
-                                final rating = data_info['rating'];
-                                final address = data_info['address\t'];
-                                final review = data_info['count_rating']
-                                    .toStringAsFixed(0);
-                                return InkWell(
-                                  onTap: () {},
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        // img
-                                        height: 300,
-                                        width: 200,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            bottomLeft: Radius.circular(5),
-                                          ),
-                                          image: DecorationImage(
-                                            image: AssetImage(
-                                              "assets/coffee01.jpg",
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        // body
-                                        height: 300,
-                                        width: 200,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(5),
-                                            bottomRight: Radius.circular(5),
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              // title store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10),
-                                              child: Text(
-                                                name,
-                                                style: TextStyle(
-                                                  color: MainColor,
+                          FutureBuilder(
+                            // recommend
+                            future: apiProvider.fetchDataRec({
+                              'name': user.uid,
+                            }),
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              return ListView.builder(
+                                  // recommend
+                                  itemCount: apiProvider.dataRec.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, index) {
+                                    final data_info =
+                                        apiProvider.dataRec[index];
+                                    final name = data_info['store'];
+                                    final rating = data_info['rating'];
+                                    final address = data_info['address\t'];
+                                    final review = data_info['count_rating']
+                                        .toStringAsFixed(0);
+                                    return InkWell(
+                                      onTap: () {
+                                        apiProvider.gotoPage(name, context);
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            // img
+                                            height: 300,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(5),
+                                                bottomLeft: Radius.circular(5),
+                                              ),
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                  "assets/coffee01.jpg",
                                                 ),
+                                                fit: BoxFit.cover,
                                               ),
                                             ),
-                                            SizedBox(
-                                              height: 20,
-                                            ),
-                                            Padding(
-                                              // address store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10),
-                                              child: Card(
-                                                elevation: 0,
-                                                child: Text(
-                                                  address,
-                                                  style: TextStyle(
-                                                    color: SecondColor,
-                                                  ),
-                                                ),
+                                          ),
+                                          Container(
+                                            // body
+                                            height: 300,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(5),
+                                                bottomRight: Radius.circular(5),
                                               ),
+                                              color: Colors.white,
                                             ),
-                                            SizedBox(
-                                              height: 20,
-                                            ),
-                                            Padding(
-                                              // distance store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  // title store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 10),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    "REVIEW ",
+                                                  child: Text(
+                                                    name.toString().toUpperCase(),
                                                     style: TextStyle(
                                                       color: MainColor,
                                                     ),
                                                   ),
-                                                  Container(
-                                                    width: 120,
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Padding(
+                                                  // address store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 10),
+                                                  child: Card(
+                                                    elevation: 0,
                                                     child: Text(
-                                                      "${review}",
+                                                      address,
                                                       style: TextStyle(
                                                         color: SecondColor,
                                                       ),
                                                     ),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 40,
-                                            ),
-                                            Padding(
-                                              // ratting store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10),
-                                              child: RatingBarIndicator(
-                                                rating: rating,
-                                                itemBuilder: (context, index) =>
-                                                    TestIMG,
-                                                itemCount: 5,
-                                                itemSize: 20,
-                                                itemPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 0),
-                                                direction: Axis.horizontal,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 5),
-                                    ],
-                                  ),
-                                );
-                              }),
-                          ListView.builder(
-                              // popular
-                              itemCount: popularData.length,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, i) {
-                                var data = popularData[i];
-                                var name = data["Store_name"];
-                                var address = data["addr"];
-                                var rating = data["rating"];
-                                var cont_rating =
-                                    data["count_rating"].toStringAsFixed(0);
-                                return InkWell(
-                                  onTap: () {
-                                    gotoPage(name);
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        // img
-                                        height: 300,
-                                        width: 200,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            bottomLeft: Radius.circular(5),
-                                          ),
-                                          image: DecorationImage(
-                                            image: AssetImage(
-                                              "assets/coffee01.jpg",
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        // body
-                                        height: 300,
-                                        width: 200,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(5),
-                                            bottomRight: Radius.circular(5),
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              // title store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10),
-                                              child: Text(
-                                                name,
-                                                style: TextStyle(
-                                                  color: MainColor,
                                                 ),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 20,
-                                            ),
-                                            Padding(
-                                              // address store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Padding(
+                                                  // distance store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 10),
-                                              child: Card(
-                                                elevation: 0,
-                                                child: Text(
-                                                  address,
-                                                  style: TextStyle(
-                                                    color: SecondColor,
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "REVIEW ",
+                                                        style: TextStyle(
+                                                          color: MainColor,
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: 120,
+                                                        child: Text(
+                                                          "${review}",
+                                                          style: TextStyle(
+                                                            color: SecondColor,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
+                                                SizedBox(
+                                                  height: 40,
+                                                ),
+                                                Padding(
+                                                  // ratting store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 10),
+                                                  child: RatingBarIndicator(
+                                                    rating: rating,
+                                                    itemBuilder:
+                                                        (context, index) =>
+                                                            TestIMG,
+                                                    itemCount: 5,
+                                                    itemSize: 20,
+                                                    itemPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 0),
+                                                    direction: Axis.horizontal,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(width: 5),
+                                        ],
+                                      ),
+                                    );
+                                  });
+                            },
+                          ),
+                          FutureBuilder(
+                            // popular
+                            future: apiProvider.fetchDataPop(),
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              return ListView.builder(
+                                  // popular
+                                  itemCount: apiProvider.dataPop.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, i) {
+                                    var data = apiProvider.dataPop[i];
+                                    var name = data["Store_name"];
+                                    var address = data["addr"];
+                                    var rating = data["rating"];
+                                    var cont_rating =
+                                        data["count_rating"].toStringAsFixed(0);
+                                    return InkWell(
+                                      onTap: () {
+                                        apiProvider.gotoPage(name, context);
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            // img
+                                            height: 300,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(5),
+                                                bottomLeft: Radius.circular(5),
+                                              ),
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                  "assets/coffee01.jpg",
+                                                ),
+                                                fit: BoxFit.cover,
                                               ),
                                             ),
-                                            SizedBox(
-                                              height: 20,
+                                          ),
+                                          Container(
+                                            // body
+                                            height: 300,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(5),
+                                                bottomRight: Radius.circular(5),
+                                              ),
+                                              color: Colors.white,
                                             ),
-                                            Padding(
-                                              // distance store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  // title store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 10),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    "REVIEW ",
+                                                  child: Text(
+                                                    name.toString().toUpperCase(),
                                                     style: TextStyle(
                                                       color: MainColor,
                                                     ),
                                                   ),
-                                                  Text(
-                                                    cont_rating,
-                                                    style: TextStyle(
-                                                      color: SecondColor,
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Padding(
+                                                  // address store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 10),
+                                                  child: Card(
+                                                    elevation: 0,
+                                                    child: Text(
+                                                      address,
+                                                      style: TextStyle(
+                                                        color: SecondColor,
+                                                      ),
                                                     ),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 40,
-                                            ),
-                                            Padding(
-                                              // ratting store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10),
-                                              child: RatingBarIndicator(
-                                                rating: rating,
-                                                itemBuilder: (context, index) =>
-                                                    TestIMG,
-                                                itemCount: 5,
-                                                itemSize: 20,
-                                                itemPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 0),
-                                                direction: Axis.horizontal,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 5),
-                                    ],
-                                  ),
-                                );
-                              }),
-                          ListView.builder(
-                              // nearby
-                              itemCount: nearbyData.length,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                final latlong_info = nearbyData[index];
-                                final name = latlong_info['store'];
-                                final distance =
-                                    latlong_info['distance'].toStringAsFixed(2);
-                                final rating = latlong_info['rating'];
-                                final address = latlong_info['address\t'];
-                                return InkWell(
-                                  onTap: () {
-                                    gotoPage(name);
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        // img
-                                        height: 300,
-                                        width: 200,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            bottomLeft: Radius.circular(5),
-                                          ),
-                                          image: DecorationImage(
-                                            image: AssetImage(
-                                              "assets/coffee01.jpg",
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        // body
-                                        height: 300,
-                                        width: 200,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(5),
-                                            bottomRight: Radius.circular(5),
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              // title store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10),
-                                              child: Text(
-                                                name,
-                                                style: TextStyle(
-                                                  color: MainColor,
                                                 ),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 20,
-                                            ),
-                                            Padding(
-                                              // address store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Padding(
+                                                  // distance store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 10),
-                                              child: Card(
-                                                elevation: 0,
-                                                child: Text(
-                                                  address,
-                                                  style: TextStyle(
-                                                    color: SecondColor,
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "REVIEW ",
+                                                        style: TextStyle(
+                                                          color: MainColor,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        cont_rating,
+                                                        style: TextStyle(
+                                                          color: SecondColor,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
+                                                SizedBox(
+                                                  height: 40,
+                                                ),
+                                                Padding(
+                                                  // ratting store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 10),
+                                                  child: RatingBarIndicator(
+                                                    rating: rating,
+                                                    itemBuilder:
+                                                        (context, index) =>
+                                                            TestIMG,
+                                                    itemCount: 5,
+                                                    itemSize: 20,
+                                                    itemPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 0),
+                                                    direction: Axis.horizontal,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(width: 5),
+                                        ],
+                                      ),
+                                    );
+                                  });
+                            },
+                          ),
+                          FutureBuilder(
+                            // nearby
+                            future: apiProvider.fetchDataNear(),
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              return ListView.builder(
+                                  // nearby
+                                  itemCount: apiProvider.dataNear.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, index) {
+                                    final latlong_info =
+                                        apiProvider.dataNear[index];
+                                    final name = latlong_info['store'];
+                                    final distance = latlong_info['distance']
+                                        .toStringAsFixed(2);
+                                    final rating = latlong_info['rating'];
+                                    final address = latlong_info['address\t'];
+                                    return InkWell(
+                                      onTap: () {
+                                        apiProvider.gotoPage(name, context);
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            // img
+                                            height: 300,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(5),
+                                                bottomLeft: Radius.circular(5),
+                                              ),
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                  "assets/coffee01.jpg",
+                                                ),
+                                                fit: BoxFit.cover,
                                               ),
                                             ),
-                                            SizedBox(
-                                              height: 20,
+                                          ),
+                                          Container(
+                                            // body
+                                            height: 300,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(5),
+                                                bottomRight: Radius.circular(5),
+                                              ),
+                                              color: Colors.white,
                                             ),
-                                            Padding(
-                                              // distance store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  // title store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 10),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    "DISTANCE ",
+                                                  child: Text(
+                                                    name.toString().toUpperCase(),
                                                     style: TextStyle(
                                                       color: MainColor,
                                                     ),
                                                   ),
-                                                  Text(
-                                                    "${distance} Km",
-                                                    style: TextStyle(
-                                                      color: SecondColor,
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Padding(
+                                                  // address store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 10),
+                                                  child: Card(
+                                                    elevation: 0,
+                                                    child: Text(
+                                                      address,
+                                                      style: TextStyle(
+                                                        color: SecondColor,
+                                                      ),
                                                     ),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 40,
-                                            ),
-                                            Padding(
-                                              // ratting store
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Padding(
+                                                  // distance store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 10),
-                                              child: RatingBarIndicator(
-                                                rating: rating,
-                                                itemBuilder: (context, index) =>
-                                                    TestIMG,
-                                                itemCount: 5,
-                                                itemSize: 20,
-                                                itemPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 0),
-                                                direction: Axis.horizontal,
-                                              ),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "DISTANCE ",
+                                                        style: TextStyle(
+                                                          color: MainColor,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "${distance} Km",
+                                                        style: TextStyle(
+                                                          color: SecondColor,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 40,
+                                                ),
+                                                Padding(
+                                                  // ratting store
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 10),
+                                                  child: RatingBarIndicator(
+                                                    rating: rating,
+                                                    itemBuilder:
+                                                        (context, index) =>
+                                                            TestIMG,
+                                                    itemCount: 5,
+                                                    itemSize: 20,
+                                                    itemPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 0),
+                                                    direction: Axis.horizontal,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                          SizedBox(width: 5),
+                                        ],
                                       ),
-                                      SizedBox(width: 5),
-                                    ],
-                                  ),
-                                );
-                              }),
+                                    );
+                                  });
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -1506,7 +1149,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                           if (snapshot.hasData) {
                             return Container(
-                              height: 400,
+                              height: 420,
                               child: ListView.builder(
                                   itemCount: snapshot.data!.docs.length,
                                   scrollDirection: Axis.horizontal,

@@ -40,7 +40,6 @@ dependencies:
   google_fonts: ^3.0.1
   http: ^0.13.5
   scroll_navigation: ^1.3.2
-  like_button: ^2.0.5
   flutter_rating_bar: ^4.0.1
   flutter_image_slideshow: any
   firebase_auth: ^4.1.5
@@ -55,6 +54,7 @@ dependencies:
   geocoding: ^2.0.5
   geolocator: ^9.0.2
   uuid: ^3.0.7
+  provider: ^6.0.5
 
   
 dev_dependencies:

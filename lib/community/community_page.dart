@@ -1,19 +1,13 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'package:cafein_beta/category_page/bakery_page.dart';
 import 'package:cafein_beta/community/community_coffee_page.dart';
 import 'package:cafein_beta/community/community_knowledge_page.dart';
 import 'package:cafein_beta/community/community_seed_page.dart';
 import 'package:cafein_beta/community/communitypost_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:like_button/like_button.dart';
-import 'dart:io';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -46,21 +40,30 @@ class _CommunityPageState extends State<CommunityPage> {
   String imageUrl = '';
   var user = FirebaseAuth.instance.currentUser!;
 
-  Future<void> likePostCommunity(String postid, String uid, List likes) async {
+  Future<void> likePostCommunity(String postid, String uid, List likes,
+      String ownpost, String title) async {
     try {
       if (likes.contains(uid)) {
         await FirebaseFirestore.instance
             .collection("community")
             .doc(postid)
             .update({
-          "likes": FieldValue.arrayRemove([uid])
+          "likes": FieldValue.arrayRemove([uid]),
+          "likes_count": FieldValue.increment(-1),
         });
       } else {
         await FirebaseFirestore.instance
             .collection("community")
             .doc(postid)
             .update({
-          "likes": FieldValue.arrayUnion([uid])
+          "likes": FieldValue.arrayUnion([uid]),
+          "likes_count": FieldValue.increment(1),
+        });
+        await FirebaseFirestore.instance.collection("notifications").add({
+          "email": user.email,
+          "event": "Like",
+          "title": title,
+          "email_own_post": ownpost,
         });
       }
     } catch (e) {
@@ -258,14 +261,14 @@ class _CommunityPageState extends State<CommunityPage> {
               child: Align(
                   alignment: Alignment.topLeft,
                   child: Text(
-                    "TREND",
+                    "trending review".toUpperCase(),
                     style: TextStyle(color: SecondColor, fontSize: 15),
                   )),
             ),
             StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection("community")
-                    .orderBy("likes", descending: false)
+                    .orderBy("likes_count", descending: true)
                     .limit(10)
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -365,6 +368,8 @@ class _CommunityPageState extends State<CommunityPage> {
                                                 data["postid"],
                                                 user.uid,
                                                 data["likes"],
+                                                data["email"],
+                                                data["title"],
                                               );
                                             },
                                           ),

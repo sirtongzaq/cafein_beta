@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, non_constant_identifier_names
 
 import 'dart:convert';
+import 'package:cafein_beta/api_service/api_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +11,7 @@ import 'dart:core';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class SignupPage extends StatefulWidget {
   final VoidCallback showLoginPage;
@@ -61,7 +63,6 @@ class _SignupPageState extends State<SignupPage> {
   final _genderController = TextEditingController();
   TextEditingController _ageController = TextEditingController();
   bool _isLoading = false;
-
   Future UploadIMG() async {
     ImagePicker imagePicker = ImagePicker();
     XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -105,12 +106,12 @@ class _SignupPageState extends State<SignupPage> {
           imageUrl,
         );
         // add user to api
-        postUserData(
-          _usernameController.text.trim(),
-          selectedItem.toString(),
-          int.parse(_ageController.text),
-          uid,
-        );
+        ApiProvider().postuserData({
+          "name": _usernameController.text.trim(),
+          "gender": selectedItem.toString(),
+          "age": int.parse(_ageController.text),
+          "uid": uid,
+        });
         setState(() {
           _isLoading = false;
         });

@@ -70,16 +70,19 @@ class _PostPageState extends State<PostPage> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(data["email"].toString().toUpperCase(),style: TextStyle(
-                                      color: SecondColor
-                                    ),),
+                                    Container(
+                                      width: 150,
+                                      child: Text(data["email"].toString().toUpperCase(),style: TextStyle(
+                                        color: SecondColor
+                                      ),),
+                                    ),
                                     SizedBox(width: 10,),
                                     Text(data["event"].toString().toUpperCase(),style: TextStyle(
                                       color: MainColor
                                     ),),
                                     SizedBox(width: 10,),
                                     Container(
-                                      width: 150,
+                                      width: 140,
                                       child: Text(data["title"].toString().toUpperCase(),style: TextStyle(
                                         color: SecondColor
                                       ),),

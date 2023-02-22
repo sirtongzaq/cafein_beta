@@ -52,7 +52,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late String _uid;
   late int _age;
 
-  Future<void> likePost(String postid, String uid, List likes) async {
+  Future<void> likePost(String postid, String uid, List likes, String title,
+      String ownpost) async {
     try {
       if (likes.contains(uid)) {
         await FirebaseFirestore.instance
@@ -69,6 +70,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             .update({
           "likes": FieldValue.arrayUnion([uid]),
           "likes_count": FieldValue.increment(1),
+        });
+        await FirebaseFirestore.instance.collection("notifications").add({
+          "email": user.email,
+          "event": "like",
+          "title": title,
+          "email_own_post": ownpost,
         });
       }
     } catch (e) {
@@ -393,7 +400,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                           .symmetric(
                                                       horizontal: 10),
                                                   child: Text(
-                                                    name.toString().toUpperCase(),
+                                                    name
+                                                        .toString()
+                                                        .toUpperCase(),
                                                     style: TextStyle(
                                                       color: MainColor,
                                                     ),
@@ -541,7 +550,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                           .symmetric(
                                                       horizontal: 10),
                                                   child: Text(
-                                                    name.toString().toUpperCase(),
+                                                    name
+                                                        .toString()
+                                                        .toUpperCase(),
                                                     style: TextStyle(
                                                       color: MainColor,
                                                     ),
@@ -687,7 +698,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                           .symmetric(
                                                       horizontal: 10),
                                                   child: Text(
-                                                    name.toString().toUpperCase(),
+                                                    name
+                                                        .toString()
+                                                        .toUpperCase(),
                                                     style: TextStyle(
                                                       color: MainColor,
                                                     ),
@@ -1260,6 +1273,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                           data["postid"],
                                                           user.uid,
                                                           data["likes"],
+                                                          "${data["store_name"]} Review",
+                                                          data["email"],
                                                         );
                                                       },
                                                     ),

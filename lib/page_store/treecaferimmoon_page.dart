@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cafein_beta/api_service/api_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:cafein_beta/page_store/treecaferimmoonmap_page.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
@@ -44,21 +46,44 @@ class _TreecaferimmoonPageState extends State<TreecaferimmoonPage> {
   String doc_store = "7IKACCpErxwvBbkcMuTA";
 
 
-  Future<void> likePost(String postid, String uid, List likes) async {
+  viewPage() async {
+    await FirebaseFirestore.instance
+        .collection("search")
+        .doc(doc_store)
+        .update({
+      "views": FieldValue.increment(1),
+    });
+    final apiProvider = Provider.of<ApiProvider>(context, listen: false);
+    apiProvider.postuserEvent({
+      "uid": user.uid,
+      "event": "view",
+      "Content": A,
+    });
+  }
+
+  Future<void> likePost(String postid, String uid, List likes,String title,String ownpost) async {
     try {
       if (likes.contains(uid)) {
         await FirebaseFirestore.instance
             .collection("reviews")
             .doc(postid)
             .update({
-          "likes": FieldValue.arrayRemove([uid])
+          "likes": FieldValue.arrayRemove([uid]),
+          "likes_count": FieldValue.increment(-1),
         });
       } else {
         await FirebaseFirestore.instance
             .collection("reviews")
             .doc(postid)
             .update({
-          "likes": FieldValue.arrayUnion([uid])
+          "likes": FieldValue.arrayUnion([uid]),
+          "likes_count": FieldValue.increment(1),
+        });
+        await FirebaseFirestore.instance.collection("notifications").add({
+          "email": user.email,
+          "event": "like",
+          "title": title,
+          "email_own_post": ownpost,
         });
       }
     } catch (e) {
@@ -73,14 +98,22 @@ class _TreecaferimmoonPageState extends State<TreecaferimmoonPage> {
             .collection("search")
             .doc(doc_store)
             .update({
-          "likes": FieldValue.arrayRemove([uid])
+          "likes": FieldValue.arrayRemove([uid]),
+          "likes_count": FieldValue.increment(-1),
         });
       } else {
         await FirebaseFirestore.instance
             .collection("search")
             .doc(doc_store)
             .update({
-          "likes": FieldValue.arrayUnion([uid])
+          "likes": FieldValue.arrayUnion([uid]),
+          "likes_count": FieldValue.increment(1),
+        });
+        final apiProvider = Provider.of<ApiProvider>(context, listen: false);
+        apiProvider.postuserEvent({
+          "uid": user.uid,
+          "event": "like",
+          "Content": A,
         });
       }
     } catch (e) {
@@ -130,13 +163,13 @@ class _TreecaferimmoonPageState extends State<TreecaferimmoonPage> {
           datetimenow,
           postId,
         );
-        postUserData(
-          user.uid,
-          ratings,
-          A,
-          _messageController.text.trim(),
-          datetimenow,
-        );
+        ApiProvider().postuserReview({
+          "uid": user.uid,
+          "rating": ratings,
+          "store": A,
+          "message": _messageController.text.trim(),
+          "date": datetimenow,
+        });
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Thank you for review")));
       }
@@ -161,33 +194,10 @@ class _TreecaferimmoonPageState extends State<TreecaferimmoonPage> {
     });
   }
 
-  Future postUserData(
-    String uid,
-    rating,
-    String store,
-    String message,
-    String date,
-  ) async {
-    try {
-      var url = Uri.https(
-          'e48d-2001-fb1-14a-79d7-9a5-bb29-b802-41ec.ap.ngrok.io', '/review');
-      final response = await http.post(url,
-          body: jsonEncode({
-            "uid": uid,
-            "rating": rating,
-            "store": A,
-            "message": message,
-            "date": datetimenow, 
-          }),
-          headers: {'Content-Type': 'application/json'});
-      if (response.statusCode == 200) {
-        print(response.body);
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
+  @override
+  void initState() {
+    viewPage();
+    super.initState();
   }
 
   @override
@@ -338,7 +348,7 @@ class _TreecaferimmoonPageState extends State<TreecaferimmoonPage> {
                                             ),
                                             Padding(
                                               padding: const EdgeInsets.only(
-                                                  left: 50,),
+                                                  left: 50),
                                               child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
@@ -352,7 +362,7 @@ class _TreecaferimmoonPageState extends State<TreecaferimmoonPage> {
                                                     "${data["type"][0].toUpperCase()},${data["type"][1].toUpperCase()},${data["type"][2].toUpperCase()}",
                                                     style: TextStyle(
                                                         color: SecondColor,fontSize: 13),
-                                                  )
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -916,6 +926,8 @@ class _TreecaferimmoonPageState extends State<TreecaferimmoonPage> {
                                                   data["postid"],
                                                   user.uid,
                                                   data["likes"],
+                                                  "${data["store_name"]} Review",
+                                                  data["email"],
                                                 );
                                               },
                                             ),

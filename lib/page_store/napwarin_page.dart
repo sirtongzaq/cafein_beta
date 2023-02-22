@@ -79,7 +79,7 @@ class _NapswarinPageState extends State<NapswarinPage> {
         });
         await FirebaseFirestore.instance.collection("notifications").add({
           "email": user.email,
-          "event": "Like",
+          "event": "like",
           "title": title,
           "email_own_post": ownpost,
         });

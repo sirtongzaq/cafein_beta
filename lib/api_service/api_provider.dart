@@ -37,7 +37,7 @@ import 'package:cafein_beta/page_store/treecaferimmoon_Page.dart';
 import 'package:cafein_beta/page_store/yuanjai_page.dart';
 import '../home_page.dart';
 
-String X = "9d84-27-145-99-31.ap.ngrok.io";
+String X = "3ee8-2001-fb1-148-7898-84d7-14ac-a931-997a.ap.ngrok.io";
 
 class ApiProvider with ChangeNotifier {
   late String _dataEvent;
@@ -234,7 +234,7 @@ class ApiProvider with ChangeNotifier {
         }
         break;
 
-      case "Yuanjai Café":
+      case "Yuanjai Cafe":
         {
           //statements;
           Navigator.push(context,

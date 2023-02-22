@@ -307,7 +307,7 @@ class _TestPageState extends State<TestPage> {
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasData) {
                     return Container(
-                      height: 400,
+                      height: 420,
                       child: ListView.builder(
                           itemCount: snapshot.data!.docs.length,
                           scrollDirection: Axis.horizontal,
@@ -447,7 +447,7 @@ class _TestPageState extends State<TestPage> {
                   )),
             ),
             StreamBuilder(
-                //reviews user liked
+                //blog user liked
                 stream: FirebaseFirestore.instance
                     .collection("community")
                     .where("likes", arrayContains: user.uid)
